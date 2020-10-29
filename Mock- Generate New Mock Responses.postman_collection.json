@@ -1,0 +1,1033 @@
+{
+	"info": {
+		"_postman_id": "75a659a3-f672-4b60-8917-bf06977c608d",
+		"name": "Mock: Generate New Mock Responses",
+		"description": "This collection will inspect an existing API Blueprint collection for example responses that it can duplicate and modify.   This is handy since the postman GUI doesn't make it easy to duplicate (or \"save as\") example responses.\n\nAs it uses the POSTMAN API there are limitations on how to many requests a free account user can make.  To become more familiar with the postman API I reccomend this blog post (which describes how to get a postman API key): https://medium.com/better-practices/https-medium-com-postman-engineering-fake-it-till-you-make-it-mocks-for-agile-development-f4d050cad694\n\nThe collection uses the following environment variables.  You can create an environment or set them in the Variables Tab above.\n* postman_api_key  -- set this to your postman_api_key\n* collection_name -- the name of the existing collection (with some sample responses already) to start from\n* key_to_modify  -- A key name in your existing sample responses\n* new_key_value = The new value to assign when that key is detected\n* new_example_suffix -- The suffix to append to the new examples and new collection name\n\nThe requests build on one another as follows:\n1) THe first request lists all your collections and gets the id of the one that matches \"collection_name\", and stores its id in a variable called \"_collection_id\",\n2) The second request fetches the existing collection and stores it in an environment variable\n3) The third request is where the \"magic happens\", mostly in the \"Pre-Request Scripts\" tab.  Here we walk through the existing collection looking for example response that return a 200.  For any that are found the script searches for objects that contain a key with the name set in the \"key_to_modify\" environment variable.   When one is found it is set to the value specified in the \"new_key_value\".   The new example requests are renamed and then appended to the existing requests.   After the entire  collection has been inspected a POST request is made to create a new collection.  (For some reason PUT requests to modify the existing collection don't work).  Finally the new collections id is saved in the \"_new_collection_id\" variable.\n4)  The next collection response fetchs the newly created collection.   In order to bring this collection into your postman environment, copy the entire response, and then click on the \"Import\" button at the top left of the Postman window.  In the next screen select the \"Paste Raw Text\" tab, and then paste the response you copied into the window.  Click the orange \"Import\" button and your newly updated Example API Blueprint collection will be added to postman.\n5) Finally, sinc you just created a copy of it, run the final DELETE request to delete the collection so you don't have multuiple copies in the Postman cloud.\n\n",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get ID for {{collection_name}} Collection",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "c346eac0-f242-45e5-9a2d-4a35e5f0550e",
+						"exec": [
+							"pm.test(\"response is ok\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response json data should not have errors\", function () {",
+							"    pm.response.to.have.jsonBody();",
+							"    pm.response.to.not.have.jsonBody('error');",
+							"});",
+							"",
+							"pm.test(\"response json should contain an array of collections\", function () {",
+							"    pm.expect(pm.response.json()).to.have.property('collections').and.be.an('array');",
+							"    pm.expect(pm.response.json().collections).to.have.property('length');",
+							"});",
+							"",
+							"pm.test(\"Array contains the collection we want to work on\", function () {",
+							"    let found = false;",
+							"    let ourCollection = pm.variables.get('collection_name');",
+							"    console.log(`Looking for ${ourCollection}...`);",
+							"    for (var collection of pm.response.json().collections) {",
+							"        if (collection.name === ourCollection) {",
+							"            found = true;",
+							"            pm.collectionVariables.set('_collection_id', collection.id);",
+							"            break;",
+							"        }",
+							"    }",
+							"    pm.expect(found).to.equal(true);",
+							"});",
+							"",
+							"// pm.test(\"response json should return collection details\", function () {",
+							"//     pm.expect(pm.response.json()).to.have.property('collection')",
+							"//         .and.to.include.keys(['id', 'name', 'uid']);",
+							"    ",
+							"//     // set environment variables to be used in subsequent requests",
+							"//     pm.environment.set(\"collection_id\", pm.response.json().collection.id);",
+							"//     pm.environment.set(\"collection_uid\", pm.response.json().collection.uid);",
+							"//     pm.environment.set(\"collection_name\", pm.response.json().collection.name);",
+							"    ",
+							"//     // open the Postman console to view log statements",
+							"//     console.log(\"Setting collection_id: \" + pm.response.json().collection.id);",
+							"//     console.log(\"Setting collection_uid: \" + pm.response.json().collection.uid);",
+							"//     console.log(\"Setting collection_name: \" + pm.response.json().collection.name);",
+							"// });",
+							"",
+							"// // additional tests to ensure that the relevant environment variables are present",
+							"// pm.test('\"postman_api_key\" variable should be present', function () {",
+							"//     pm.expect(pm.variables.get('postman_api_key')).to.be.a('string');",
+							"// });"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-api-key",
+						"value": "{{postman_api_key}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://api.getpostman.com/collections/",
+					"protocol": "https",
+					"host": [
+						"api",
+						"getpostman",
+						"com"
+					],
+					"path": [
+						"collections",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get the collection we want to modify",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "14955cc5-420d-4ab3-a7f2-438639eace94",
+						"exec": [
+							"pm.test(\"response is ok\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response json data should not have errors\", function () {",
+							"    pm.response.to.have.jsonBody();",
+							"    pm.response.to.not.have.jsonBody('error');",
+							"});",
+							"",
+							"pm.test(\"response json should contain one collection\", function () {",
+							"    pm.expect(pm.response.json()).to.have.property('collection').and.be.an('object');",
+							"    pm.expect(pm.response.json().collection).to.have.property('info').and.be.an('object');",
+							"    pm.expect(pm.response.json().collection.info).to.have.property('name').and.be.an('string');",
+							"    pm.expect(pm.response.json().collection).to.have.property('item').and.be.an('array');",
+							"    ",
+							"});",
+							"",
+							"pm.test('Collection name matches {{collection_name}}', function () {",
+							"    pm.expect(pm.response.json().collection.info.name).to.equal(pm.variables.get('collection_name'));",
+							"});",
+							"",
+							"// store the collection as a json object in an environment variable",
+							"pm.collectionVariables.set(\"_current_collection\", JSON.stringify(pm.response.json()));",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "84e21639-2d09-4031-9517-f5d738bd2740",
+						"exec": [
+							"// you can unskip this test in case you want to have a stricter check on the selected",
+							"// environment.",
+							"pm.test('\"_collection_id\" variable should be present', function () {",
+							"    pm.expect(pm.variables.get('_collection_id')).to.be.a('string');",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-Api-Key",
+						"value": "{{postman_api_key}}"
+					}
+				],
+				"url": {
+					"raw": "https://api.getpostman.com/collections/{{_collection_id}}",
+					"protocol": "https",
+					"host": [
+						"api",
+						"getpostman",
+						"com"
+					],
+					"path": [
+						"collections",
+						"{{_collection_id}}"
+					]
+				},
+				"description": "Access the contents of a collection that is accessible to you using its unique id (`uid`).\n\n> Requires <a href=\"#authentication\">API Key</a> as `X-Api-Key` request header or `apikey` URL query parameter."
+			},
+			"response": [
+				{
+					"name": "Valid Response",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Api-Key",
+								"value": "{{postman_api_key}}"
+							}
+						],
+						"url": {
+							"raw": "https://api.getpostman.com/collections/{{collection_uid}}",
+							"protocol": "https",
+							"host": [
+								"api",
+								"getpostman",
+								"com"
+							],
+							"path": [
+								"collections",
+								"{{collection_uid}}"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "javascript",
+					"header": [
+						{
+							"key": "Access-Control-Allow-Credentials",
+							"value": "",
+							"name": "Access-Control-Allow-Credentials",
+							"description": ""
+						},
+						{
+							"key": "Access-Control-Allow-Headers",
+							"value": "",
+							"name": "Access-Control-Allow-Headers",
+							"description": ""
+						},
+						{
+							"key": "Access-Control-Allow-Methods",
+							"value": "",
+							"name": "Access-Control-Allow-Methods",
+							"description": ""
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "",
+							"name": "Access-Control-Allow-Origin",
+							"description": ""
+						},
+						{
+							"key": "Access-Control-Expose-Headers",
+							"value": "",
+							"name": "Access-Control-Expose-Headers",
+							"description": ""
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive",
+							"name": "Connection",
+							"description": ""
+						},
+						{
+							"key": "Content-Encoding",
+							"value": "gzip",
+							"name": "Content-Encoding",
+							"description": ""
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8",
+							"name": "Content-Type",
+							"description": ""
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 27 May 2016 21:37:31 GMT",
+							"name": "Date",
+							"description": ""
+						},
+						{
+							"key": "ETag",
+							"value": "W/\"453-t7Du3QMg1i7hkk6S4e3NvA\"",
+							"name": "ETag",
+							"description": ""
+						},
+						{
+							"key": "Server",
+							"value": "nginx/1.8.1",
+							"name": "Server",
+							"description": ""
+						},
+						{
+							"key": "Vary",
+							"value": "Accept-Encoding",
+							"name": "Vary",
+							"description": ""
+						},
+						{
+							"key": "X-RateLimit-Limit",
+							"value": "60",
+							"name": "X-RateLimit-Limit",
+							"description": ""
+						},
+						{
+							"key": "X-RateLimit-Remaining",
+							"value": "57",
+							"name": "X-RateLimit-Remaining",
+							"description": ""
+						},
+						{
+							"key": "X-RateLimit-Reset",
+							"value": "1464385067",
+							"name": "X-RateLimit-Reset",
+							"description": ""
+						},
+						{
+							"key": "transfer-encoding",
+							"value": "chunked",
+							"name": "transfer-encoding",
+							"description": ""
+						}
+					],
+					"cookie": [],
+					"body": "{\"collection\":{\"variables\":[],\"info\":{\"name\":\"Sample Collection\",\"_postman_id\":\"f2e66c2e-5297-e4a5-739e-20cbb90900e3\",\"description\":\"This is a sample collection that makes a tiny request to Postman Echo service to get the list of request headers sent by a HTTP client.\",\"schema\":\"https://schema.getpostman.com/json/collection/v2.0.0/collection.json\"},\"item\":[{\"id\":\"82ee981b-e19f-962a-401e-ea34ebfb4848\",\"name\":\"Request Headers\",\"event\":[{\"listen\":\"test\",\"script\":{\"type\":\"text/javascript\",\"exec\":\"var responseJSON;\\ntry {\\n    tests[\\\"Body contains headers\\\"] = responseBody.has(\\\"headers\\\");\\n    responseJSON = JSON.parse(responseBody);\\n    tests[\\\"Header contains host\\\"] = \\\"host\\\" in responseJSON.headers;\\n    tests[\\\"Header contains test parameter sent as part of request header\\\"] = \\\"my-sample-header\\\" in responseJSON.headers;\\n}\\ncatch (e) { }\\n\\n\\n\\n\"}}],\"request\":{\"url\":\"https://echo.getpostman.com/headers\",\"method\":\"GET\",\"header\":[{\"key\":\"my-sample-header\",\"value\":\"Lorem ipsum dolor sit amet\",\"description\":\"\"}],\"body\":{\"mode\":\"formdata\",\"formdata\":[]},\"description\":\"\"},\"response\":[]}]}}"
+				}
+			]
+		},
+		{
+			"name": "Create a new collection with our new tests",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "8927e23b-1c3e-43cb-97ea-a67487a4fb06",
+						"exec": [
+							"// retrieve the collection",
+							"let current_collection = JSON.parse(pm.variables.get(\"_current_collection\"));",
+							"",
+							"// Modify the collection so we can create a new one",
+							"current_collection.collection.info.name = `${pm.variables.get('collection_name')}_${pm.variables.get('new_example_suffix')}`;",
+							"delete current_collection.collection.info._postman_id",
+							"",
+							"// Copy all existing example responses but make server return orgId of {{test_organization_id}}",
+							"let key_to_modify = 'orgId';",
+							"let new_key_value = '{{test_organization_id}}';",
+							"",
+							"// Function to find all key of a certain name and give it a new value",
+							"changeKey = function (obj, key, newVal) {",
+							"  for (let k in obj) {",
+							"    if (typeof obj[k] == 'object') {",
+							"      changeKey(obj[k], key, newVal);",
+							"    } else if (typeof obj[k] == 'string') {",
+							"      if (k === key) {",
+							"        console.log(`Found a key:${key}. Modifying value: ${obj[k]} to ${newVal}`);",
+							"        obj[k] = newVal;",
+							"      } else {",
+							"        // console.log(`Ignoring key: ${k}`);",
+							"      }",
+							"    } else {",
+							"      // console.log(`Ignoring key: ${k} with type ${typeof obj[k]}`);",
+							"    }",
+							"  }",
+							"  return obj;",
+							"};",
+							"",
+							"// Walk all the requests in the collection and add new examples when appropriate",
+							"// For each documented request",
+							"for (let r=0; r<current_collection.collection.item.length; r++) {",
+							"  let request = current_collection.collection.item[r];",
+							"  let new_examples = [];",
+							"  // For each example responses",
+							"  for (let e=0; e<request.response.length; e++) {",
+							"    let example = request.response[e];",
+							"    if (example.code != 200) {continue;}",
+							"    if (example.body.indexOf(key_to_modify) < 0) {continue;}",
+							"    let new_example = JSON.parse(JSON.stringify(example));",
+							"    let new_example_body = JSON.parse(example.body);",
+							"    new_example_body = changeKey(new_example_body, key_to_modify, new_key_value);",
+							"    new_example.body = JSON.stringify(new_example_body);",
+							"    new_example.name = `${example.name}_${pm.variables.get('new_example_suffix')}`;",
+							"    new_examples.push(new_example);",
+							"  }",
+							"  console.log(current_collection.collection.item[0].response[1].body);",
+							"  if (new_examples.length) {",
+							"    console.log(`Evaluated ${request.response.length} examples for request: ${request.name}`);",
+							"    console.log(`Created ${new_examples.length} new examples for request: ${request.name}`);",
+							"    request.response = request.response.concat(new_examples);",
+							"    console.log(`Now there are ${request.response.length} examples `);",
+							"  }",
+							"}",
+							"",
+							"console.log(current_collection.collection);",
+							"",
+							"// store the updated collection as an environment variable to use in the request body",
+							"pm.environment.set(\"_updated_collection\", JSON.stringify(current_collection));",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "08aad0e6-0c15-40b2-ba82-cfaecfcc88b6",
+						"exec": [
+							"pm.test(\"response is ok\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response json data should not have errors\", function () {",
+							"    pm.response.to.have.jsonBody();",
+							"    pm.response.to.not.have.jsonBody('error');",
+							"});",
+							"",
+							"pm.test(\"response json should contain one collection\", function () {",
+							"    pm.expect(pm.response.json()).to.have.property('collection').and.be.an('object');",
+							"    pm.expect(pm.response.json().collection).to.have.property('id').and.be.an('string');",
+							"    pm.collectionVariables.set('_new_collection_id', pm.response.json().collection.id);",
+							"});",
+							"",
+							"console.log(pm.variables.get('_new_collection_id'));",
+							"",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "X-Api-Key",
+						"value": "{{postman_api_key}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{{_updated_collection}}"
+				},
+				"url": {
+					"raw": "https://api.getpostman.com/collections/",
+					"protocol": "https",
+					"host": [
+						"api",
+						"getpostman",
+						"com"
+					],
+					"path": [
+						"collections",
+						""
+					]
+				},
+				"description": "This endpoint allows you to update an existing collection using the Postman Collection v2 format. For more information about the v2 schema, check the format [here](https://schema.getpostman.com/json/collection/v2.0.0/docs/index.html).\n\nOn successful updation of the collection, the response returns the collection `name`, `id` and `uid`.\n\n> Requires <a href=\"#authentication\">API Key</a> as `X-Api-Key` request header or `apikey` URL query parameter.\n\nNote: Please be careful when trying to update the collection, as the existing collection will be replaced by the request body."
+			},
+			"response": [
+				{
+					"name": "Collection Updated",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Api-Key",
+								"value": "{{postman_api_key}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"collection\": {\n    \"variables\": [],\n    \"info\": {\n      \"name\": \"Sample Collection\",\n      \"_postman_id\": \"1d3daef4-2037-4584-ab86-bafd8c8f8a55\",\n      \"description\": \"This is just a sample collection.\",\n      \"schema\": \"https://schema.getpostman.com/json/collection/v2.0.0/collection.json\"\n    },\n    \"item\": [\n      {\n        \"name\": \"This is a folder\",\n        \"description\": \"\",\n        \"item\": [\n          {\n            \"_postman_id\": \"b5e8d7dd-909c-4ba7-aef4-8609bc50b586\",\n            \"name\": \"Sample POST Request\",\n            \"request\": {\n              \"url\": \"echo.getpostman.com/post\",\n              \"method\": \"POST\",\n              \"header\": [\n                {\n                  \"key\": \"Content-Type\",\n                  \"value\": \"application/json\",\n                  \"description\": \"\"\n                }\n              ],\n              \"body\": {\n                \"mode\": \"raw\",\n                \"raw\": \"{\\n\\t\\\"data\\\": \\\"123\\\"\\n}\"\n              },\n              \"description\": \"This is a sample POST Request\"\n            },\n            \"response\": []\n          }\n        ]\n      },\n      {\n        \"name\": \"This is a second folder\",\n        \"description\": \"This is the second folder\",\n        \"item\": []\n      },\n      {\n        \"name\": \"Sample GET Request\",\n        \"request\": {\n          \"url\": \"echo.getpostman.com/get\",\n          \"method\": \"GET\",\n          \"header\": [],\n          \"body\": {\n            \"mode\": \"formdata\",\n            \"formdata\": []\n          },\n          \"description\": \"This is a sample GET Request\"\n        },\n        \"response\": []\n      },\n      {\n        \"name\": \"This is the second request\",\n        \"request\": {\n          \"url\": \"echo.getpostman.com/post\",\n          \"method\": \"POST\",\n          \"header\": [],\n          \"body\": {\n            \"mode\": \"formdata\",\n            \"formdata\": []\n          },\n          \"description\": \"This is the second request\"\n        },\n        \"response\": []\n      }\n    ]\n  }\n}"
+						},
+						"url": {
+							"raw": "https://api.getpostman.com/collections/{{collection_uid}}",
+							"protocol": "https",
+							"host": [
+								"api",
+								"getpostman",
+								"com"
+							],
+							"path": [
+								"collections",
+								"{{collection_uid}}"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Access-Control-Allow-Credentials",
+							"value": "",
+							"name": "Access-Control-Allow-Credentials",
+							"description": ""
+						},
+						{
+							"key": "Access-Control-Allow-Headers",
+							"value": "",
+							"name": "Access-Control-Allow-Headers",
+							"description": ""
+						},
+						{
+							"key": "Access-Control-Allow-Methods",
+							"value": "",
+							"name": "Access-Control-Allow-Methods",
+							"description": ""
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "",
+							"name": "Access-Control-Allow-Origin",
+							"description": ""
+						},
+						{
+							"key": "Access-Control-Expose-Headers",
+							"value": "",
+							"name": "Access-Control-Expose-Headers",
+							"description": ""
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive",
+							"name": "Connection",
+							"description": ""
+						},
+						{
+							"key": "Content-Encoding",
+							"value": "gzip",
+							"name": "Content-Encoding",
+							"description": ""
+						},
+						{
+							"key": "Content-Length",
+							"value": "110",
+							"name": "Content-Length",
+							"description": ""
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8",
+							"name": "Content-Type",
+							"description": ""
+						},
+						{
+							"key": "Date",
+							"value": "Wed, 23 Nov 2016 12:03:23 GMT",
+							"name": "Date",
+							"description": ""
+						},
+						{
+							"key": "ETag",
+							"value": "W/\"89-Tuf/A5YFyf5ewpKKrb1Zww\"",
+							"name": "ETag",
+							"description": ""
+						},
+						{
+							"key": "Server",
+							"value": "nginx/1.8.0",
+							"name": "Server",
+							"description": ""
+						},
+						{
+							"key": "X-RateLimit-Limit",
+							"value": "60",
+							"name": "X-RateLimit-Limit",
+							"description": ""
+						},
+						{
+							"key": "X-RateLimit-Remaining",
+							"value": "56",
+							"name": "X-RateLimit-Remaining",
+							"description": ""
+						},
+						{
+							"key": "X-RateLimit-Reset",
+							"value": "1479902614",
+							"name": "X-RateLimit-Reset",
+							"description": ""
+						}
+					],
+					"cookie": [],
+					"body": "{\"collection\":{\"id\":\"1d3daef4-2037-4584-ab86-bafd8c8f8a55\",\"name\":\"Sample Collection\",\"uid\":\"5852-1d3daef4-2037-4584-ab86-bafd8c8f8a55\"}}"
+				}
+			]
+		},
+		{
+			"name": "Get the newly created collection",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "14955cc5-420d-4ab3-a7f2-438639eace94",
+						"exec": [
+							"pm.test(\"response is ok\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response json data should not have errors\", function () {",
+							"    pm.response.to.have.jsonBody();",
+							"    pm.response.to.not.have.jsonBody('error');",
+							"});",
+							"",
+							"pm.test(\"response json should contain one collection\", function () {",
+							"    pm.expect(pm.response.json()).to.have.property('collection').and.be.an('object');",
+							"    pm.expect(pm.response.json().collection).to.have.property('info').and.be.an('object');",
+							"    pm.expect(pm.response.json().collection.info).to.have.property('name').and.be.an('string');",
+							"    pm.expect(pm.response.json().collection).to.have.property('item').and.be.an('array');",
+							"    ",
+							"});",
+							"",
+							"pm.test('Collection name matches {{collection_name}}', function () {",
+							"    pm.expect(pm.response.json().collection.info.name).to.equal(`${pm.variables.get('collection_name')}_${pm.variables.get('new_example_suffix')}`);",
+							"});",
+							"",
+							"// store the collection as a json object in an environment variable",
+							"pm.variables.set(\"_new_current_collection\", JSON.stringify(pm.response.json()));",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "84e21639-2d09-4031-9517-f5d738bd2740",
+						"exec": [
+							"// you can unskip this test in case you want to have a stricter check on the selected",
+							"// environment.",
+							"pm.test('\"_collection_id\" variable should be present', function () {",
+							"    pm.expect(pm.variables.get('_collection_id')).to.be.a('string');",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-Api-Key",
+						"value": "{{postman_api_key}}"
+					}
+				],
+				"url": {
+					"raw": "https://api.getpostman.com/collections/{{_new_collection_id}}",
+					"protocol": "https",
+					"host": [
+						"api",
+						"getpostman",
+						"com"
+					],
+					"path": [
+						"collections",
+						"{{_new_collection_id}}"
+					]
+				},
+				"description": "Access the contents of a collection that is accessible to you using its unique id (`uid`).\n\n> Requires <a href=\"#authentication\">API Key</a> as `X-Api-Key` request header or `apikey` URL query parameter."
+			},
+			"response": [
+				{
+					"name": "Valid Response",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Api-Key",
+								"value": "{{postman_api_key}}"
+							}
+						],
+						"url": {
+							"raw": "https://api.getpostman.com/collections/{{collection_uid}}",
+							"protocol": "https",
+							"host": [
+								"api",
+								"getpostman",
+								"com"
+							],
+							"path": [
+								"collections",
+								"{{collection_uid}}"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "javascript",
+					"header": [
+						{
+							"key": "Access-Control-Allow-Credentials",
+							"value": "",
+							"name": "Access-Control-Allow-Credentials",
+							"description": ""
+						},
+						{
+							"key": "Access-Control-Allow-Headers",
+							"value": "",
+							"name": "Access-Control-Allow-Headers",
+							"description": ""
+						},
+						{
+							"key": "Access-Control-Allow-Methods",
+							"value": "",
+							"name": "Access-Control-Allow-Methods",
+							"description": ""
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "",
+							"name": "Access-Control-Allow-Origin",
+							"description": ""
+						},
+						{
+							"key": "Access-Control-Expose-Headers",
+							"value": "",
+							"name": "Access-Control-Expose-Headers",
+							"description": ""
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive",
+							"name": "Connection",
+							"description": ""
+						},
+						{
+							"key": "Content-Encoding",
+							"value": "gzip",
+							"name": "Content-Encoding",
+							"description": ""
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8",
+							"name": "Content-Type",
+							"description": ""
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 27 May 2016 21:37:31 GMT",
+							"name": "Date",
+							"description": ""
+						},
+						{
+							"key": "ETag",
+							"value": "W/\"453-t7Du3QMg1i7hkk6S4e3NvA\"",
+							"name": "ETag",
+							"description": ""
+						},
+						{
+							"key": "Server",
+							"value": "nginx/1.8.1",
+							"name": "Server",
+							"description": ""
+						},
+						{
+							"key": "Vary",
+							"value": "Accept-Encoding",
+							"name": "Vary",
+							"description": ""
+						},
+						{
+							"key": "X-RateLimit-Limit",
+							"value": "60",
+							"name": "X-RateLimit-Limit",
+							"description": ""
+						},
+						{
+							"key": "X-RateLimit-Remaining",
+							"value": "57",
+							"name": "X-RateLimit-Remaining",
+							"description": ""
+						},
+						{
+							"key": "X-RateLimit-Reset",
+							"value": "1464385067",
+							"name": "X-RateLimit-Reset",
+							"description": ""
+						},
+						{
+							"key": "transfer-encoding",
+							"value": "chunked",
+							"name": "transfer-encoding",
+							"description": ""
+						}
+					],
+					"cookie": [],
+					"body": "{\"collection\":{\"variables\":[],\"info\":{\"name\":\"Sample Collection\",\"_postman_id\":\"f2e66c2e-5297-e4a5-739e-20cbb90900e3\",\"description\":\"This is a sample collection that makes a tiny request to Postman Echo service to get the list of request headers sent by a HTTP client.\",\"schema\":\"https://schema.getpostman.com/json/collection/v2.0.0/collection.json\"},\"item\":[{\"id\":\"82ee981b-e19f-962a-401e-ea34ebfb4848\",\"name\":\"Request Headers\",\"event\":[{\"listen\":\"test\",\"script\":{\"type\":\"text/javascript\",\"exec\":\"var responseJSON;\\ntry {\\n    tests[\\\"Body contains headers\\\"] = responseBody.has(\\\"headers\\\");\\n    responseJSON = JSON.parse(responseBody);\\n    tests[\\\"Header contains host\\\"] = \\\"host\\\" in responseJSON.headers;\\n    tests[\\\"Header contains test parameter sent as part of request header\\\"] = \\\"my-sample-header\\\" in responseJSON.headers;\\n}\\ncatch (e) { }\\n\\n\\n\\n\"}}],\"request\":{\"url\":\"https://echo.getpostman.com/headers\",\"method\":\"GET\",\"header\":[{\"key\":\"my-sample-header\",\"value\":\"Lorem ipsum dolor sit amet\",\"description\":\"\"}],\"body\":{\"mode\":\"formdata\",\"formdata\":[]},\"description\":\"\"},\"response\":[]}]}}"
+				}
+			]
+		},
+		{
+			"name": "Delete the new collection",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "14955cc5-420d-4ab3-a7f2-438639eace94",
+						"exec": [
+							"pm.test(\"response is ok\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response json data should not have errors\", function () {",
+							"    pm.response.to.have.jsonBody();",
+							"    pm.response.to.not.have.jsonBody('error');",
+							"});",
+							"",
+							"pm.test(\"response json should contain one collection\", function () {",
+							"    pm.expect(pm.response.json()).to.have.property('collection').and.be.an('object');",
+							"    pm.expect(pm.response.json().collection).to.have.property('id').and.be.an('string');",
+							"    pm.expect(pm.response.json().collection).to.have.property('uid').and.be.an('string');",
+							"    ",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "84e21639-2d09-4031-9517-f5d738bd2740",
+						"exec": [
+							"// you can unskip this test in case you want to have a stricter check on the selected",
+							"// environment.",
+							"pm.test('\"_collection_id\" variable should be present', function () {",
+							"    pm.expect(pm.variables.get('_collection_id')).to.be.a('string');",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "X-Api-Key",
+						"value": "{{postman_api_key}}"
+					}
+				],
+				"url": {
+					"raw": "https://api.getpostman.com/collections/{{_new_collection_id}}",
+					"protocol": "https",
+					"host": [
+						"api",
+						"getpostman",
+						"com"
+					],
+					"path": [
+						"collections",
+						"{{_new_collection_id}}"
+					]
+				},
+				"description": "Access the contents of a collection that is accessible to you using its unique id (`uid`).\n\n> Requires <a href=\"#authentication\">API Key</a> as `X-Api-Key` request header or `apikey` URL query parameter."
+			},
+			"response": [
+				{
+					"name": "Valid Response",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Api-Key",
+								"value": "{{postman_api_key}}"
+							}
+						],
+						"url": {
+							"raw": "https://api.getpostman.com/collections/{{collection_uid}}",
+							"protocol": "https",
+							"host": [
+								"api",
+								"getpostman",
+								"com"
+							],
+							"path": [
+								"collections",
+								"{{collection_uid}}"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "javascript",
+					"header": [
+						{
+							"key": "Access-Control-Allow-Credentials",
+							"value": "",
+							"name": "Access-Control-Allow-Credentials",
+							"description": ""
+						},
+						{
+							"key": "Access-Control-Allow-Headers",
+							"value": "",
+							"name": "Access-Control-Allow-Headers",
+							"description": ""
+						},
+						{
+							"key": "Access-Control-Allow-Methods",
+							"value": "",
+							"name": "Access-Control-Allow-Methods",
+							"description": ""
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "",
+							"name": "Access-Control-Allow-Origin",
+							"description": ""
+						},
+						{
+							"key": "Access-Control-Expose-Headers",
+							"value": "",
+							"name": "Access-Control-Expose-Headers",
+							"description": ""
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive",
+							"name": "Connection",
+							"description": ""
+						},
+						{
+							"key": "Content-Encoding",
+							"value": "gzip",
+							"name": "Content-Encoding",
+							"description": ""
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8",
+							"name": "Content-Type",
+							"description": ""
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 27 May 2016 21:37:31 GMT",
+							"name": "Date",
+							"description": ""
+						},
+						{
+							"key": "ETag",
+							"value": "W/\"453-t7Du3QMg1i7hkk6S4e3NvA\"",
+							"name": "ETag",
+							"description": ""
+						},
+						{
+							"key": "Server",
+							"value": "nginx/1.8.1",
+							"name": "Server",
+							"description": ""
+						},
+						{
+							"key": "Vary",
+							"value": "Accept-Encoding",
+							"name": "Vary",
+							"description": ""
+						},
+						{
+							"key": "X-RateLimit-Limit",
+							"value": "60",
+							"name": "X-RateLimit-Limit",
+							"description": ""
+						},
+						{
+							"key": "X-RateLimit-Remaining",
+							"value": "57",
+							"name": "X-RateLimit-Remaining",
+							"description": ""
+						},
+						{
+							"key": "X-RateLimit-Reset",
+							"value": "1464385067",
+							"name": "X-RateLimit-Reset",
+							"description": ""
+						},
+						{
+							"key": "transfer-encoding",
+							"value": "chunked",
+							"name": "transfer-encoding",
+							"description": ""
+						}
+					],
+					"cookie": [],
+					"body": "{\"collection\":{\"variables\":[],\"info\":{\"name\":\"Sample Collection\",\"_postman_id\":\"f2e66c2e-5297-e4a5-739e-20cbb90900e3\",\"description\":\"This is a sample collection that makes a tiny request to Postman Echo service to get the list of request headers sent by a HTTP client.\",\"schema\":\"https://schema.getpostman.com/json/collection/v2.0.0/collection.json\"},\"item\":[{\"id\":\"82ee981b-e19f-962a-401e-ea34ebfb4848\",\"name\":\"Request Headers\",\"event\":[{\"listen\":\"test\",\"script\":{\"type\":\"text/javascript\",\"exec\":\"var responseJSON;\\ntry {\\n    tests[\\\"Body contains headers\\\"] = responseBody.has(\\\"headers\\\");\\n    responseJSON = JSON.parse(responseBody);\\n    tests[\\\"Header contains host\\\"] = \\\"host\\\" in responseJSON.headers;\\n    tests[\\\"Header contains test parameter sent as part of request header\\\"] = \\\"my-sample-header\\\" in responseJSON.headers;\\n}\\ncatch (e) { }\\n\\n\\n\\n\"}}],\"request\":{\"url\":\"https://echo.getpostman.com/headers\",\"method\":\"GET\",\"header\":[{\"key\":\"my-sample-header\",\"value\":\"Lorem ipsum dolor sit amet\",\"description\":\"\"}],\"body\":{\"mode\":\"formdata\",\"formdata\":[]},\"description\":\"\"},\"response\":[]}]}}"
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "3e1cc82d-80ef-4b49-ab3b-7f10d0d1551e",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "98c64e21-d57e-41e3-89db-370fde65e5ec",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "29daa105-3206-4af9-b1da-c0e6f8b52cb4",
+			"key": "postman_api_key",
+			"value": "PMAK-5de3d4eff7247900363c7684-3e5f43d04b2c83326279862a2e445c71c7",
+			"type": "string"
+		},
+		{
+			"id": "65b7de45-f4b2-4249-9aaf-ae6c5ea42e1b",
+			"key": "collection_name",
+			"value": "Example API Blueprint",
+			"type": "string"
+		},
+		{
+			"id": "18a1bee4-574d-43e2-ad04-7e5eab644772",
+			"key": "key_to_modify",
+			"value": "orgId",
+			"type": "string"
+		},
+		{
+			"id": "3fe342f2-e91d-4623-9497-5b549e5484b9",
+			"key": "new_key_value",
+			"value": "{{test_organization_id}}",
+			"type": "string"
+		},
+		{
+			"id": "437565d4-26d6-49c3-af1d-8c52558a3b8d",
+			"key": "new_example_suffix",
+			"value": "with_partner_set_orgId",
+			"type": "string"
+		}
+	],
+	"protocolProfileBehavior": {}
+}

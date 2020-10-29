@@ -1,0 +1,1248 @@
+{
+	"info": {
+		"_postman_id": "3f93f7bb-3e88-4685-b49e-819f1aaebe3c",
+		"name": "Example API Blueprint",
+		"description": "An example postman collection to demonstrate a design, test and mock server of an API.\n\nThe idea behind the Blueprint collection is that this is the place where a designer can DEFINE each of the APIs.   For each API, a designer should create \"sample responses\", that describe typical happy path responses as well as common error responses (authorization issues, bad query params, or request bodies, etc).  These API definitions and responses can be used to create API specifications (using third party tools that convert Postman collections to OpenAPI or Swagger for example), OR a development team can use the postman collection itself as the design.\n\nThe sample responses defined in this collection can be returned by a mock server, which Postman can provide.  The other folder \"Contract Tests\", provides a set of tests that validate that the API is working correctly.  We create these tests IN THE DESIGN PHASE and run it against the mock server (typicaly updating the sample responses to support additional test cases as we iterate on design).   Once the API is implemented these same test can be used to validate that the implementation has been done in alignment with the design.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "List Examples",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/examples?exampleField1=string&id=string&max=integer&orgId=string",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"examples"
+					],
+					"query": [
+						{
+							"key": "exampleField1",
+							"value": "string",
+							"description": "Optional. Filter response based on exampleFields1 value"
+						},
+						{
+							"key": "id",
+							"value": "string",
+							"description": "Optional. Filter response based on the id of the example."
+						},
+						{
+							"key": "max",
+							"value": "integer",
+							"description": "Optional. Maximum number of values returned in the list. Default is 100. Maximum supported is 1000"
+						},
+						{
+							"key": "orgId",
+							"value": "string",
+							"description": "Optional.  Partner Admin's may specify the org they wish to list examples for.  If not specified, the caller's org will be used"
+						}
+					]
+				},
+				"description": "List {examples} in your organization.  \n\nDesignated Partner Admins may specify an ID for other organizations that they manage.\n\n{If applicable describe how this list will differ for users with different roles} .\n\nLong result sets will be split into [pages](/docs/api/basics/pagination)."
+			},
+			"response": [
+				{
+					"name": "Success: GET all examples with update",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": "All good APIs should return JSON!",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{url}}/examples",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"examples"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "TrackingID",
+							"value": "ROUTER_5D813874-0C33-01BB-18C9-80123412",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"items\": [\n\t\t{\n\t\t    \"id\": \"{{stub_firstExampleId}}\",\n\t\t    \"orgId\": \"{{stub_orgID_of_test_user_1}}\",\n\t\t\t\"exampleField1\": \"{{test_example1_exampleField1_newValue}}\"\n\t\t},\n\t\t{\n\t\t    \"id\": \"{{stub_secondExampleId}}\",\n\t\t    \"orgId\": \"{{stub_orgID_of_test_user_1}}\",\n\t\t    \"exampleField1\": \"{{test_example2_exampleField1_value}}\"\n\t\t}\n\n    ]\n}"
+				},
+				{
+					"name": "Failure: Invalid Request Params",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": "All good APIs should return JSON!",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{url}}/examples?max=foobar",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"examples"
+							],
+							"query": [
+								{
+									"key": "max",
+									"value": "foobar"
+								}
+							]
+						}
+					},
+					"code": 400,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "TrackingID",
+							"value": "ROUTER_5D813874-0C33-01BB-18C9-801234321",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"message\": \"The request could not be understood by the server due to malformed syntax.\",\n    \"errors\": [\n        {\n            \"description\": \"The request could not be understood by the server due to malformed syntax.\"\n        }\n    ],\n    \"trackingId\": \"ROUTER_5D829007-CFE6-01BB-1D94-45CCA8561D94\"\n}"
+				},
+				{
+					"name": "Failure: Token Missing Scopes",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{API_URL}}/examples",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"examples"
+							]
+						}
+					},
+					"status": "Forbidden",
+					"code": 403,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "TrackingID",
+							"value": "ROUTER_5D813874-0C33-01BB-18C9-80123456",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"message\": \"The server understood the request, but refused to fulfill it because the access token is missing required scopes or the user is missing required roles or licenses.\",\n    \"errors\": [\n        {\n            \"description\": \"The server understood the request, but refused to fulfill it because the access token is missing required scopes or the user is missing required roles or licenses.\"\n        }\n    ],\n    \"trackingId\": \"ROUTER_5D827BAB-F207-01BB-26BB-45CCA85626BB\"\n}"
+				},
+				{
+					"name": "Success: Get empty list of examples",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": "All good APIs return JSON",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "\"Bearer {{ACCESS_TOKEN}}\"",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{url}}/examples",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"examples"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "TrackingID",
+							"value": "ROUTER_5D813874-0C33-01BB-18C9-80123457",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"items\": []\n}"
+				},
+				{
+					"name": "Success: GET second example",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": "All good APIs should return JSON!",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{url}}/examples?id={{_secondExampleId}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"examples"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "{{_secondExampleId}}",
+									"description": "Optional. Maximum number of values returned in the list. Default is 100. Maximum supported is 1000"
+								}
+							]
+						}
+					},
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "TrackingID",
+							"value": "ROUTER_5D813874-0C33-01BB-18C9-80123459",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"items\": [\n        {\n            \"id\": \"{{stub_secondExampleId}}\",\n            \"orgId\": \"{{stub_orgID_of_test_user_1}}\",\n            \"exampleField1\": \"{{test_example2_exampleField1_value}}\"\n        }\n    ]\n}"
+				},
+				{
+					"name": "Success: Get list with two examples",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": "All good APIs should return JSON!",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{url}}/examples?exampleField1=string&id=string&max=integer",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"examples"
+							],
+							"query": [
+								{
+									"key": "exampleField1",
+									"value": "string",
+									"description": "Optional. Filter response based on exampleFields1 value"
+								},
+								{
+									"key": "id",
+									"value": "string",
+									"description": "Optional. Filter response based on the id of the example."
+								},
+								{
+									"key": "max",
+									"value": "integer",
+									"description": "Optional. Maximum number of values returned in the list. Default is 100. Maximum supported is 1000"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "TrackingID",
+							"value": "ROUTER_5D813874-0C33-01BB-18C9-80123458",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"items\": [\n\t\t{\n\t\t    \"id\": \"{{stub_firstExampleId}}\",\n\t\t    \"orgId\": \"{{stub_orgID_of_test_user_1}}\",\n\t\t    \"exampleField1\": \"{{test_example1_exampleField1_value}}\"\n\t\t},\n\t\t{\n\t\t    \"id\": \"{{stub_secondExampleId}}\",\n\t\t    \"orgId\": \"{{stub_orgID_of_test_user_1}}\",\n\t\t    \"exampleField1\": \"{{test_example2_exampleField1_value}}\"\n\t\t}\n\t]\n}"
+				},
+				{
+					"name": "Success: Get list with one example and link header",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": "All good APIs should return JSON!",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{API_URL}}/examples?max=1",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"examples"
+							],
+							"query": [
+								{
+									"key": "max",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "Link",
+							"value": "<{{url}}/examples?max=1&cursor=Y2lzY29zcGFyazovL3VzL1JPT00vMzdkMTU0YTAtY2U0ZC0xMWU5LWIwNzUtNjMxYmFkZmMzOTY2>; rel=\"next\"",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "TrackingID",
+							"value": "ROUTER_5D813874-0C33-01BB-18C9-8012345",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"items\": [\n\t\t{\n\t\t    \"id\": \"{{stub_firstExampleId}}\",\n\t\t    \"orgId\": \"{{stub_orgID_of_test_user_1}}\",\n\t\t    \"exampleField1\": \"{{test_example1_exampleField1_value}}\"\n\t\t}\n    ]\n}"
+				},
+				{
+					"name": "Success: Get list with one example",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": "All good APIs should return JSON!",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{url}}/examples",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"examples"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "TrackingID",
+							"value": "ROUTER_5D813874-0C33-01BB-18C9-80123458",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"items\": [\n\t\t{\n\t\t    \"id\": \"{{stub_firstExampleId}}\",\n\t\t    \"orgId\": \"{{stub_orgID_of_test_user_1}}\",\n\t\t    \"exampleField1\": \"{{test_example1_exampleField1_value}}\"\n\t\t}\n    ]\n}"
+				}
+			]
+		},
+		{
+			"name": "Get Example Details",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{url}}/examples/:exampleId",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"examples",
+						":exampleId"
+					],
+					"variable": [
+						{
+							"key": "exampleId",
+							"value": "string",
+							"description": "Required.  ID of example to return."
+						}
+					]
+				},
+				"description": "Shows details for an {example}, by ID. \n\nCertain fields, {specific to your example usage}, will only be displayed for when you query the endpont details, but will not be available from the List API.\n\nSpecify the ID of the {example} to inspect via the `exampleId` parameter in the URI."
+			},
+			"response": [
+				{
+					"name": "Success: Get Example Details",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://polls.apiblueprint.org/endpoints/<string>",
+							"protocol": "http",
+							"host": [
+								"polls",
+								"apiblueprint",
+								"org"
+							],
+							"path": [
+								"endpoints",
+								"<string>"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "TrackingID",
+							"value": "ROUTER_5D813874-0C33-01BB-18C9-8012344",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"id\": \"{{stub_firstExampleId}}\",\n    \"orgId\": \"{{stub_orgID_of_test_user_1}}\",\n    \"exampleField1\": \"{{test_example1_exampleField1_value}}\"\n}\n"
+				},
+				{
+					"name": "Failure: Example not found",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{url}}/examples/:exampleId",
+							"host": [
+								"{url}}"
+							],
+							"path": [
+								"examples",
+								":exampleId"
+							],
+							"variable": [
+								{
+									"key": "exampleId",
+									"value": "string",
+									"description": "Required.  ID of example to return."
+								}
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "TrackingID",
+							"value": "ROUTER_5D813874-0C33-01BB-18C9-801234321",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"message\": \"The requested resource could not be found.\",\n    \"errors\": [\n        {\n            \"description\": \"The requested resource could not be found.\"\n        }\n    ],\n    \"trackingId\": \"ROUTER_5D82A370-E932-01BB-474D-45CCA856474D\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Create new Example",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"exampleField1\": \"{{_exampleField1_value}}\",\n  \"orgId\": \"{{_orgId}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/examples",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"examples"
+					]
+				},
+				"description": "Create a new {example}. \n\n{Describe who can do this (ie: Only an admin can create a new endpoint)}.\n\n{Describe the scopes required to do this  (ie: Requires the `spark:example_write` scope)}.\n\nThe following fields can be included in the JSON request body:\n* exampleField1 - String/Required - A Field in our new example object\n* ordId - String/Optional - If not set, example will be created in the org of the caller.  Partner Admins may set the orgId to create the new example in."
+			},
+			"response": [
+				{
+					"name": "Failure: Token Missing Scopes",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"exampleField1\": \"{{_exampleField1_value}}\",\n  \"orgId\": \"{{_orgId}}\"\n}"
+						},
+						"url": {
+							"raw": "{{API_URL}}/examples",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"examples"
+							]
+						}
+					},
+					"status": "Forbidden",
+					"code": 403,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "TrackingID",
+							"value": "ROUTER_5D813874-0C33-01BB-18C9-801234123",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"message\": \"The server understood the request, but refused to fulfill it because the access token is missing required scopes or the user is missing required roles or licenses.\",\n    \"errors\": [\n        {\n            \"description\": \"The server understood the request, but refused to fulfill it because the access token is missing required scopes or the user is missing required roles or licenses.\"\n        }\n    ],\n    \"trackingId\": \"ROUTER_5D813874-0C33-01BB-18C9-801234123\"\n}"
+				},
+				{
+					"name": "Failure: Bad Request Body Syntax",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"exampleField1\": [\"An array is an invalid value type for this field\"]\n}"
+						},
+						"url": {
+							"raw": "{{API_URL}}/examples",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"examples"
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "TrackingID",
+							"value": "ROUTER_5D813874-0C33-01BB-18C9-801235454",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"message\": \"The request could not be understood by the server due to malformed syntax.\",\n    \"errors\": [\n        {\n            \"description\": \"The request could not be understood by the server due to malformed syntax.\"\n        }\n    ],\n    \"trackingId\": \"ROUTER_5D829007-CFE6-01BB-1D94-45CCA8561D94\"\n}"
+				},
+				{
+					"name": "Success: Create new Example",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"exampleField1\": \"{{test_example1_exampleField1_value}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/examples",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"examples"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "TrackingID",
+							"value": "ROUTER_5D813874-0C33-01BB-18C9-80123431",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"id\": \"{{stub_firstExampleId}}\",\n    \"orgId\": \"{{stub_orgID_of_test_user_1}}\",\n    \"exampleField1\": \"{{test_example1_exampleField1_value}}\"\n}"
+				},
+				{
+					"name": "Success: Create second Example",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"exampleField1\": \"{{test_example1_exampleField1_value}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/examples",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"examples"
+							]
+						}
+					},
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "TrackingID",
+							"value": "ROUTER_5D813874-0C33-01BB-18C9-80123432",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"id\": \"{{stub_secondExampleId}}\",\n    \"orgId\": \"{{stub_orgID_of_test_user_1}}\",\n    \"exampleField1\": \"{{test_example2_exampleField1_value}}\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Update an Example",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"id\": \"{{_exampleId1}}\",\n\t\"orgId\": \"{{_orgId}}\",\n\t\"exampleField1\": \"{{example1_exampleField1_newValue}}\"\n}"
+				},
+				"url": {
+					"raw": "{{url}}/examples/:exampleId",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"examples",
+						":exampleId"
+					],
+					"variable": [
+						{
+							"key": "exampleId",
+							"value": "string",
+							"description": "Required.  ID of example to modify."
+						}
+					]
+				},
+				"description": "Create a new {example}. \n\n{Describe who can do this (ie: Only an admin can create a new endpoint)}.\n\n{Describe the scopes required to do this  (ie: Requires the `spark:example_write` scope)}.\n\nSpecify the ID of the {example} to delete in the required `exampleId` parameter in the URI.\n\nThe following fields can be included in the JSON request body:\n* id - String/Required - MUST be the same as the current ID for the example\n* exampleField1 - String/Required - A Field in our new example object. This value may be different than the original value.\n* ordId - String/Optional - If set will be ignored.  (To move the example to a different org, delete this one and re-created it in another org.)"
+			},
+			"response": [
+				{
+					"name": "Failure: Token Missing Scopes",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"id\": \"{{_exampleId1}}\",\n\t\"orgId\": \"{{_orgId}}\",\n\t\"exampleField1\": \"{{example1_exampleField1_newValue}}\"\n}"
+						},
+						"url": {
+							"raw": "{{url}}/examples/:exampleId",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"examples",
+								":exampleId"
+							],
+							"variable": [
+								{
+									"key": "exampleId",
+									"value": "string",
+									"description": "Required.  ID of example to modify."
+								}
+							]
+						}
+					},
+					"status": "Forbidden",
+					"code": 403,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "TrackingID",
+							"value": "ROUTER_5D813874-0C33-01BB-18C9-801234123",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"message\": \"The server understood the request, but refused to fulfill it because the access token is missing required scopes or the user is missing required roles or licenses.\",\n    \"errors\": [\n        {\n            \"description\": \"The server understood the request, but refused to fulfill it because the access token is missing required scopes or the user is missing required roles or licenses.\"\n        }\n    ],\n    \"trackingId\": \"ROUTER_5D813874-0C33-01BB-18C9-801234123\"\n}"
+				},
+				{
+					"name": "Success: Update ExampleField1",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/javascript",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"id\": \"{{stub_firstExampleId}}\",\n\t\"orgId\": \"{{stub_orgID_of_test_user_1}}\",\n\t\"exampleField1\": \"{{test_example1_exampleField1_newValue}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "javascript"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/examples/{{_firstExampleId}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"examples",
+								"{{_firstExampleId}}"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "TrackingID",
+							"value": "ROUTER_5D813874-0C33-01BB-18C9-80123421",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"id\": \"{{stub_firstExampleId}}\",\n    \"orgId\": \"{{stub_orgID_of_test_user_1}}\",\n\t\"exampleField1\": \"{{test_example1_exampleField1_newValue}}\"\n}\n"
+				},
+				{
+					"name": "Failure: Invalid request body in PUT",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"id\": \"{{_exampleId1}}\",\n\t\"orgId\": \"{{_orgId}}\",\n\t\"exampleField1\": [\"An array is an invalid field value type\"]\"\n}"
+						},
+						"url": {
+							"raw": "{{url}}/examples/:exampleId",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"examples",
+								":exampleId"
+							],
+							"variable": [
+								{
+									"key": "exampleId",
+									"value": "string",
+									"description": "Required.  ID of example to modify."
+								}
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "TrackingID",
+							"value": "ROUTER_5D82C3F8-F45E-01BB-1CE6-181EF30A1CE6",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"message\": \"The request could not be understood by the server due to malformed syntax.\",\n    \"errors\": [\n        {\n            \"description\": \"The request could not be understood by the server due to malformed syntax.\"\n        }\n    ],\n    \"trackingId\": \"ROUTER_5D82C3F8-F45E-01BB-1CE6-181EF30A1CE6\"\n}"
+				},
+				{
+					"name": "Failure: Example not found",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"id\": \"{{_exampleId1}}\",\n\t\"orgId\": \"{{_orgId}}\",\n\t\"exampleField1\": \"{{example1_exampleField1_newValue}}\"\n}"
+						},
+						"url": {
+							"raw": "{{url}}/examples/1234",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"examples",
+								"1234"
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "TrackingID",
+							"value": "ROUTER_5D82C630-FE4E-01BB-1982-181EF30A1982",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"message\": \"The requested resource could not be found.\",\n    \"errors\": [\n        {\n            \"description\": \"The requested resource could not be found.\"\n        }\n    ],\n    \"trackingId\": \"ROUTER_5D82C630-FE4E-01BB-1982-181EF30A1982\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Delete Example",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{url}}/examples/:exampleId",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"examples",
+						":exampleId"
+					],
+					"variable": [
+						{
+							"key": "exampleId",
+							"value": "string",
+							"description": "Required.  ID of example to delete."
+						}
+					]
+				},
+				"description": "Delete an {example}.\n\n{Describe who can do this (ie: Only an admin can delete and example)}.\n\n{Describe the scopes required to do this (ie: Requires the spark:example_write scope)}.\n\nSpecify the ID of the {example} to delete in the required `exampleId` parameter in the URI."
+			},
+			"response": [
+				{
+					"name": "Failure: Token Missing Scopes",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{url}}/examples/:exampleId",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"examples",
+								":exampleId"
+							],
+							"variable": [
+								{
+									"key": "exampleId",
+									"value": "string",
+									"description": "Required.  ID of example to delete."
+								}
+							]
+						}
+					},
+					"status": "Forbidden",
+					"code": 403,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "TrackingID",
+							"value": "ROUTER_5D813874-0C33-01BB-18C9-801234123",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"message\": \"The server understood the request, but refused to fulfill it because the access token is missing required scopes or the user is missing required roles or licenses.\",\n    \"errors\": [\n        {\n            \"description\": \"The server understood the request, but refused to fulfill it because the access token is missing required scopes or the user is missing required roles or licenses.\"\n        }\n    ],\n    \"trackingId\": \"ROUTER_5D813874-0C33-01BB-18C9-801234123\"\n}"
+				},
+				{
+					"name": "Success: Delete Example",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/examples/{{exampleId2}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"examples",
+								"{{exampleId2}}"
+							]
+						}
+					},
+					"status": "No Content",
+					"code": 204,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "TrackingID",
+							"value": "ROUTER_5D813874-0C33-01BB-18C9-8012341",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": ""
+				},
+				{
+					"name": "Failure: Example not found",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{url}}/examples/1234",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"examples",
+								"1234"
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "TrackingID",
+							"value": "ROUTER_5D82C630-FE4E-01BB-1982-181EF30A1983",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"message\": \"The requested resource could not be found.\",\n    \"errors\": [\n        {\n            \"description\": \"The requested resource could not be found.\"\n        }\n    ],\n    \"trackingId\": \"ROUTER_5D82C630-FE4E-01BB-1982-181EF30A1983\"\n}"
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{ACCESS_TOKEN}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "8f07b9a4-0489-43ce-bcfe-06c72862a6ab",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "179b2c8d-beeb-4f0b-b2a9-ba892c08d3c1",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "7b011d9c-9608-4009-9073-5a0c9ff2920c",
+			"key": "url",
+			"value": "SET_THIS_TO_YOUR_ENVIRONMENT_UNDER_TEST",
+			"type": "string"
+		},
+		{
+			"id": "886a7a73-e0bf-45e8-b33c-64f02fac58b2",
+			"key": "ACCESS_TOKEN",
+			"value": "SET_THIS_TO_THE_TOKEN_OF_THE_TEST_USER",
+			"type": "string"
+		},
+		{
+			"id": "cd06179d-7c01-42ec-997e-a43b879c3a16",
+			"key": "example1_exampleField1_value",
+			"value": "example one exampleField1 value",
+			"type": "string"
+		},
+		{
+			"id": "55b02d7b-db1e-4a3d-89a0-9c4908dbbd4a",
+			"key": "example2_exampleField1_value",
+			"value": "example two exampleField1 value",
+			"type": "string"
+		},
+		{
+			"id": "e3260deb-a981-4cf8-9fd8-95253da30524",
+			"key": "mock_example1_Id",
+			"value": "example one 's ID for mock server\n",
+			"type": "string"
+		},
+		{
+			"id": "4700a1ad-d5e1-4696-aa34-a2b9d9ad758e",
+			"key": "mock_example2_Id",
+			"value": "example one 's ID for mock server",
+			"type": "string"
+		},
+		{
+			"id": "6fc2bf22-cf67-494b-9090-6819b372fcff",
+			"key": "example1_exampleField1_newValue",
+			"value": "new example1Field value for first example",
+			"type": "string"
+		}
+	],
+	"protocolProfileBehavior": {}
+}

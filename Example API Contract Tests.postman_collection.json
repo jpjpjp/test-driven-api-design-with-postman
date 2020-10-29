@@ -1,0 +1,2683 @@
+{
+	"info": {
+		"_postman_id": "5afe0fc1-21f0-4d4c-a2a6-08d0ed063616",
+		"name": "Example API Contract Tests",
+		"description": "This collection includes a set of tests that validate that the API is working properly.  It works in conjunction with the companion API Blueprint collection which serves to document the API and to provide sample responses that can be provided by a mock server.\n\nThis collection includes the tests that exercise the API.  During the design phase these tests can be run aginst the mock server, and after the API is implemented the same tests can be used to validate that the implementation is working as expected.   This postman based process is described here: https://documenter.getpostman.com/view/1559645/RzZFCGFR?version=latest\n\nThe test collection contains several folders:\n* a set of \"happy path\" tests, that validate expected behavior.  The tests in this folder could potentially be made available to support teams, EFT customers, and eventually added to public Cisco API postman collections to help developers use this API.\n* a set of \"negeative\" tests to validate an assortment of possible errors.\n* a \"cleanup\" folder which simply includes a script to remove all temporary environment variables created during the test run\n\nThese tests require that the following environnment variables are set:\n* url - the base path of the API being tested.  This could be a mock service, an integration or a production enviornment.  TEST THROUGHOUT THE API DEVELOPMENT LIFECYCLE!\n* ACCESS_TOKEN - token belonging to a user who has the appropriate roles and scopes needed to exercise a full set of create/update/list/delete tests\n* PARTNER_ACCESS_TOKEN -- token belonging to a designated partner admin that belongs to a different organization than the one under test\nIn addition the Negative Test Cases may define additional TOKEN related variables to excerise test where scopes are missing or users lack the appropriate roles to perform certain tests.\n\nEnvironment Naming Conventions:\n* test_* -- by convention, our requests will send parameters or request bodies with variables named test_*.  Inspect the companion environment file or the requests to find all instances of variables with this naming convention and set these as appropriate for the API under test.\n* stub_* -- by convention, these define response values typically set by the server.  These need to be set when testing with a mock services and are ignored when testing with a real service.\n* _* -- by convention these \"temporary\" variables are set by the tests themselves, and are used to compare results across requests.   The \"Cleanup\" folders delete these variables after a set of tests have been run.\n\n",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Happy Path Tests",
+			"item": [
+				{
+					"name": "GET examples (empty list)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "a246cccf-159a-4d51-811f-d46df333b444",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"",
+									"// Test that the response object contains an empty items array",
+									"pm.test(\"The response contains an empty array of items\", () => {",
+									"    pm.expect(jsonData).to.be.an('object').to.have.keys('items');",
+									"    let items = jsonData.items;",
+									"    pm.expect(items).to.be.an('array').to.have.length(0);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-mock-response-name",
+								"value": "Success: Get empty list of examples",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{url}}/examples",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"examples"
+							]
+						},
+						"description": "First API call to list examples.  Should be empty as none have been created yet."
+					},
+					"response": []
+				},
+				{
+					"name": "Create new Example",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "55d1f422-9e1c-443a-8397-b5c0e01bf105",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"",
+									"// Test that the response contains a new example object",
+									"pm.test(\"The response contains an new example object\", () => {",
+									"    pm.expect(jsonData).to.be.an('object').to.have.keys('id', 'orgId', 'exampleField1');",
+									"    pm.environment.set(\"_firstExampleId\", jsonData.id);",
+									"    pm.environment.set(\"_firstExampleOrgId\", jsonData.orgId);",
+									"    pm.environment.set(\"_firstExample_exampleField1\", jsonData.exampleField1);",
+									"    ",
+									"    // Save this example, so that we can modify it in the PUT tests",
+									"    pm.environment.set(\"_firstExample\", JSON.stringify(jsonData));",
+									"});",
+									"",
+									"// Test that the response exampleField1 matches what we set it to",
+									"pm.test(\"The response contains the values we specified\", () => {",
+									"    pm.expect(jsonData.exampleField1).to.equal(",
+									"        pm.environment.get(\"test_example1_exampleField1_value\"));",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "x-mock-response-name",
+								"value": "Success: Create new Example",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"exampleField1\": \"{{test_example1_exampleField1_value}}\"\n}"
+						},
+						"url": {
+							"raw": "{{url}}/examples",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"examples"
+							]
+						},
+						"description": "Create a new {example}. \n\n{Describe who can do this (ie: Only an admin can create a new endpoint)}.\n\n{Describe the scopes required to do this  (ie: Requires the `spark:example_write` scope)}."
+					},
+					"response": [
+						{
+							"name": "Success: Create new Example",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"exampleField1\": \"{{_exampleField1_value}}\",\n  \"orgId\": \"{{_orgId}}\"\n}"
+								},
+								"url": {
+									"raw": "{{API_URL}}/examples",
+									"host": [
+										"{{API_URL}}"
+									],
+									"path": [
+										"examples"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "Text",
+							"header": [],
+							"cookie": [],
+							"body": "{\n  \"id\": \"Y2lzY29zcGFyazovL3VzL1BFT1BMRS9mNWIzNjE4Ny1jOGRkLTQ3MjctOGIyZi1mOWM0NDdmMjkwNDY\",\n  \"orgId\": \"Y2lzY29zcGFyazovL3VzL09SR0FOSVpBVElPTi85NmFiYzJhYS0zZGNjLTExZTUtYTE1Mi1mZTM0ODE5Y2RjOWE\",\n  \"exampleField1\": \"{example value}\"\n}"
+						}
+					]
+				},
+				{
+					"name": "GET examples (1 in list)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "f1b1c8c6-dc42-49ea-9cfa-50b246253a77",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"The response contains a list with our new example\", () => {",
+									"    pm.expect(jsonData).to.be.an('object').to.have.keys('items');",
+									"    let items = jsonData.items;",
+									"    pm.expect(items).to.be.an('array').to.have.length(1);",
+									"});",
+									"",
+									"pm.test(\"The example in the list matches the one we just created\", () => {",
+									"    let example = jsonData.items[0];",
+									"    pm.expect(example).to.be.an('object').to.have.keys('id', 'orgId', 'exampleField1');",
+									"    let id = pm.environment.get(\"_firstExampleId\");",
+									"    let orgId = pm.environment.get(\"_firstExampleOrgId\");",
+									"    let exampleField1 = pm.environment.get(\"_firstExample_exampleField1\");",
+									"    pm.expect(id).to.equal(example.id);",
+									"    pm.expect(orgId).to.equal(example.orgId);",
+									"    pm.expect(exampleField1).to.equal(example.exampleField1);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-mock-response-name",
+								"value": "Success: Get list with one example",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{url}}/examples",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"examples"
+							]
+						},
+						"description": "First API call to list examples.  Should be empty as none have been created yet."
+					},
+					"response": []
+				},
+				{
+					"name": "Create another new Example",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "55d1f422-9e1c-443a-8397-b5c0e01bf105",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"",
+									"// Test that the response contains a new example object",
+									"pm.test(\"The response contains an new example object\", () => {",
+									"    pm.expect(jsonData).to.be.an('object').to.have.keys('id', 'orgId', 'exampleField1');",
+									"    pm.environment.set(\"_secondExampleId\", jsonData.id);",
+									"    pm.environment.set(\"_secondExampleOrgId\", jsonData.orgId);",
+									"    pm.environment.set(\"_secondExample_exampleField1\", jsonData.exampleField1);",
+									"});",
+									"",
+									"// Test that the response exampleField1 matches what we set it to",
+									"pm.test(\"The response contains an new example object\", () => {",
+									"    pm.expect(jsonData.exampleField1).to.equal(",
+									"        pm.environment.get(\"test_example2_exampleField1_value\"));",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "x-mock-response-name",
+								"type": "text",
+								"value": "Success: Create second Example"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"exampleField1\": \"{{test_example2_exampleField1_value}}\"\n}"
+						},
+						"url": {
+							"raw": "{{url}}/examples",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"examples"
+							]
+						},
+						"description": "Create a new {example}. \n\n{Describe who can do this (ie: Only an admin can create a new endpoint)}.\n\n{Describe the scopes required to do this  (ie: Requires the `spark:example_write` scope)}."
+					},
+					"response": [
+						{
+							"name": "Success: Create new Example",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"exampleField1\": \"{{_exampleField1_value}}\",\n  \"orgId\": \"{{_orgId}}\"\n}"
+								},
+								"url": {
+									"raw": "{{API_URL}}/examples",
+									"host": [
+										"{{API_URL}}"
+									],
+									"path": [
+										"examples"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "Text",
+							"header": [],
+							"cookie": [],
+							"body": "{\n  \"id\": \"Y2lzY29zcGFyazovL3VzL1BFT1BMRS9mNWIzNjE4Ny1jOGRkLTQ3MjctOGIyZi1mOWM0NDdmMjkwNDY\",\n  \"orgId\": \"Y2lzY29zcGFyazovL3VzL09SR0FOSVpBVElPTi85NmFiYzJhYS0zZGNjLTExZTUtYTE1Mi1mZTM0ODE5Y2RjOWE\",\n  \"exampleField1\": \"{example value}\"\n}"
+						}
+					]
+				},
+				{
+					"name": "GET examples (2 in list)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "f1b1c8c6-dc42-49ea-9cfa-50b246253a77",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"The response contains two examples\", () => {",
+									"    pm.expect(jsonData).to.be.an('object').to.have.keys('items');",
+									"    pm.expect(jsonData.items).to.be.an('array').to.have.length(2);",
+									"});",
+									"",
+									"pm.test(\"The list contains our newly created example\", () => {",
+									"    let newId = pm.environment.get(\"_secondExampleId\");",
+									"    console.log(newId);",
+									"    console.log(jsonData.items);",
+									"    let example = jsonData.items.find(({ id }) => id === newId );",
+									"    console.log(example);",
+									"    pm.expect(example).to.be.an('object').to.have.keys('id', 'orgId', 'exampleField1');",
+									"    let orgId = pm.environment.get(\"_secondExampleOrgId\");",
+									"    let exampleField1 = pm.environment.get(\"_secondExample_exampleField1\");",
+									"    pm.expect(orgId).to.equal(example.orgId);",
+									"    pm.expect(exampleField1).to.equal(example.exampleField1);",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-mock-response-name",
+								"type": "text",
+								"value": "Success: Get list with two examples"
+							}
+						],
+						"url": {
+							"raw": "{{url}}/examples",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"examples"
+							]
+						},
+						"description": "First API call to list examples.  Should be empty as none have been created yet."
+					},
+					"response": []
+				},
+				{
+					"name": "GET examples filter by exampleField1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "f1b1c8c6-dc42-49ea-9cfa-50b246253a77",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"The response contains a list with our new example\", () => {",
+									"    pm.expect(jsonData).to.be.an('object').to.have.keys('items');",
+									"    let items = jsonData.items;",
+									"    pm.expect(items).to.be.an('array').to.have.length(1);",
+									"});",
+									"",
+									"pm.test(\"The example in the list matches the one filtered on\", () => {",
+									"    let example = jsonData.items[0];",
+									"    pm.expect(example).to.be.an('object').to.have.keys('id', 'orgId', 'exampleField1');",
+									"    let id = pm.environment.get(\"_firstExampleId\");",
+									"    let orgId = pm.environment.get(\"_firstExampleOrgId\");",
+									"    let exampleField1 = pm.environment.get(\"_firstExample_exampleField1\");",
+									"    pm.expect(id).to.equal(example.id);",
+									"    pm.expect(orgId).to.equal(example.orgId);",
+									"    pm.expect(exampleField1).to.equal(example.exampleField1);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-mock-response-name",
+								"value": "Success: Get list with one example",
+								"description": "Example to request a specific named mock response",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{url}}/examples?exampleField1={{test_example1_exampleField1_value}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"examples"
+							],
+							"query": [
+								{
+									"key": "exampleField1",
+									"value": "{{test_example1_exampleField1_value}}"
+								}
+							]
+						},
+						"description": "First API call to list examples.  Should be empty as none have been created yet."
+					},
+					"response": []
+				},
+				{
+					"name": "GET examples test max parameter",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "f1b1c8c6-dc42-49ea-9cfa-50b246253a77",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"The response contains only one example\", () => {",
+									"    pm.expect(jsonData).to.be.an('object').to.have.keys('items');",
+									"    let items = jsonData.items;",
+									"    pm.expect(items).to.be.an('array').to.have.length(1);",
+									"});",
+									"",
+									"pm.test(\"The example in the list matches the first one\", () => {",
+									"    let example = jsonData.items[0];",
+									"    pm.expect(example).to.be.an('object').to.have.keys('id', 'orgId', 'exampleField1');",
+									"    let id = pm.environment.get(\"_firstExampleId\");",
+									"    let orgId = pm.environment.get(\"_firstExampleOrgId\");",
+									"    let exampleField1 = pm.environment.get(\"_firstExample_exampleField1\");",
+									"    pm.expect(id).to.equal(example.id);",
+									"    pm.expect(orgId).to.equal(example.orgId);",
+									"    pm.expect(exampleField1).to.equal(example.exampleField1);",
+									"});",
+									"",
+									"pm.test(\"Link header is present\", function () {",
+									"    pm.response.to.have.header(\"Link\");",
+									"    let link = pm.response.headers.get(\"Link\");",
+									"    //extract link from heder info",
+									"    link = link.split(\">;\")[0];",
+									"    link = link.slice(1);",
+									"    console.log(link);",
+									"    pm.environment.set(\"_paginationLinkUrl\", link);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-mock-response-name",
+								"value": "Success: Get list with one example and link header",
+								"description": "Example to request a specific named mock response",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{url}}/examples?max=1",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"examples"
+							],
+							"query": [
+								{
+									"key": "max",
+									"value": "1"
+								}
+							]
+						},
+						"description": "First API call to list examples.  Should be empty as none have been created yet."
+					},
+					"response": []
+				},
+				{
+					"name": "Follow Link Header",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "f1b1c8c6-dc42-49ea-9cfa-50b246253a77",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"The response contains only one example\", () => {",
+									"    pm.expect(jsonData).to.be.an('object').to.have.keys('items');",
+									"    let items = jsonData.items;",
+									"    pm.expect(items).to.be.an('array').to.have.length(1);",
+									"});",
+									"",
+									"pm.test(\"The list contains our the second example\", () => {",
+									"    let newId = pm.environment.get(\"_secondExampleId\");",
+									"    let example = jsonData.items[0];",
+									"    pm.expect(example).to.be.an('object').to.have.keys('id', 'orgId', 'exampleField1');",
+									"    let orgId = pm.environment.get(\"_secondExampleOrgId\");",
+									"    let exampleField1 = pm.environment.get(\"_secondExample_exampleField1\");",
+									"    pm.expect(orgId).to.equal(example.orgId);",
+									"    pm.expect(exampleField1).to.equal(example.exampleField1);",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"description": "Example to request a specific named mock response",
+								"key": "x-mock-response-name",
+								"type": "text",
+								"value": "Success: GET second example"
+							}
+						],
+						"url": {
+							"raw": "{{_paginationLinkUrl}}",
+							"host": [
+								"{{_paginationLinkUrl}}"
+							]
+						},
+						"description": "First API call to list examples.  Should be empty as none have been created yet."
+					},
+					"response": []
+				},
+				{
+					"name": "Update an example",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "55d1f422-9e1c-443a-8397-b5c0e01bf105",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"",
+									"// Test that the response contains a new example object",
+									"pm.test(\"The response contains the new example object\", () => {",
+									"    pm.expect(jsonData).to.be.an('object').to.have.keys('id', 'orgId', 'exampleField1');",
+									"    let example = jsonData;",
+									"    let id = pm.environment.get(\"_firstExampleId\");",
+									"    let orgId = pm.environment.get(\"_firstExampleOrgId\");",
+									"    let newExampleField1 = pm.environment.get(\"test_example1_exampleField1_newValue\");",
+									"    pm.expect(id).to.equal(example.id);",
+									"    pm.expect(orgId).to.equal(example.orgId);",
+									"    pm.expect(newExampleField1).to.equal(example.exampleField1);",
+									"    pm.environment.set('_firstExample_exampleField1', example.exampleField1)",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "5e101d71-20c5-47a9-b76c-85c2fa763bf9",
+								"exec": [
+									"// Get the response body from the previous GET",
+									"let theExample = JSON.parse(pm.environment.get(\"_firstExample\"));",
+									"// This is the modification we want to do",
+									"theExample.exampleField1 = \"{{test_example1_exampleField1_newValue}}\";",
+									"",
+									"// Write the updated body for the PUT back to the environment",
+									"pm.environment.set(\"_updatedFirstExample\", JSON.stringify(theExample));",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "x-mock-response-name",
+								"type": "text",
+								"value": "Success: Update ExampleField1"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{{_updatedFirstExample}}"
+						},
+						"url": {
+							"raw": "{{url}}/examples/{{_firstExampleId}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"examples",
+								"{{_firstExampleId}}"
+							]
+						},
+						"description": "Create a new {example}. \n\n{Describe who can do this (ie: Only an admin can create a new endpoint)}.\n\n{Describe the scopes required to do this  (ie: Requires the `spark:example_write` scope)}."
+					},
+					"response": [
+						{
+							"name": "Success: Create new Example",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"exampleField1\": \"{{_exampleField1_value}}\",\n  \"orgId\": \"{{_orgId}}\"\n}"
+								},
+								"url": {
+									"raw": "{{API_URL}}/examples",
+									"host": [
+										"{{API_URL}}"
+									],
+									"path": [
+										"examples"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "Text",
+							"header": [],
+							"cookie": [],
+							"body": "{\n  \"id\": \"Y2lzY29zcGFyazovL3VzL1BFT1BMRS9mNWIzNjE4Ny1jOGRkLTQ3MjctOGIyZi1mOWM0NDdmMjkwNDY\",\n  \"orgId\": \"Y2lzY29zcGFyazovL3VzL09SR0FOSVpBVElPTi85NmFiYzJhYS0zZGNjLTExZTUtYTE1Mi1mZTM0ODE5Y2RjOWE\",\n  \"exampleField1\": \"{example value}\"\n}"
+						}
+					]
+				},
+				{
+					"name": "GET example list with update",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "f1b1c8c6-dc42-49ea-9cfa-50b246253a77",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"The response contains two examples\", () => {",
+									"    pm.expect(jsonData).to.be.an('object').to.have.keys('items');",
+									"    pm.expect(jsonData.items).to.be.an('array').to.have.length(2);",
+									"});",
+									"",
+									"pm.test(\"The list contains our updated first example\", () => {",
+									"    let firstId = pm.environment.get(\"_firstExampleId\");",
+									"    let example = jsonData.items.find(({ id }) => id === firstId );",
+									"    pm.expect(example).to.be.an('object').to.have.keys('id', 'orgId', 'exampleField1');",
+									"    let orgId = pm.environment.get(\"_firstExampleOrgId\");",
+									"    let exampleField1 = pm.environment.get(\"_firstExample_exampleField1\");",
+									"    pm.expect(orgId).to.equal(example.orgId);",
+									"    pm.expect(exampleField1).to.equal(example.exampleField1);",
+									"});",
+									"",
+									"pm.test(\"The list contains our original second example\", () => {",
+									"    let newId = pm.environment.get(\"_secondExampleId\");",
+									"    let example = jsonData.items.find(({ id }) => id === newId );",
+									"    pm.expect(example).to.be.an('object').to.have.keys('id', 'orgId', 'exampleField1');",
+									"    let orgId = pm.environment.get(\"_secondExampleOrgId\");",
+									"    let exampleField1 = pm.environment.get(\"_secondExample_exampleField1\");",
+									"    pm.expect(orgId).to.equal(example.orgId);",
+									"    pm.expect(exampleField1).to.equal(example.exampleField1);",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-mock-response-name",
+								"type": "text",
+								"value": "Success: GET all examples with update"
+							}
+						],
+						"url": {
+							"raw": "{{url}}/examples",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"examples"
+							]
+						},
+						"description": "First API call to list examples.  Should be empty as none have been created yet."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Example 1",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "325d9713-aa93-4026-80cc-7c07b86f92d5",
+								"exec": [
+									"pm.environment.set(\"_isDeleteTest\", true);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "c5820ea5-b6b1-4628-a17c-d65058a7800e",
+								"exec": [
+									"pm.environment.unset(\"_isDeleteTest\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "x-mock-response-name",
+								"value": "Success: Delete Example",
+								"description": "Example to request a specific named mock response",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{url}}/examples/{{_firstExampleId}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"examples",
+								"{{_firstExampleId}}"
+							]
+						},
+						"description": "Shows details for an endpoint, by ID. Certain fields, {specific to your endpoint usage}, will only be displayed for when you query the endpont details, but will not be available from the List API.\n\nSpecify the endpoing ID in the `endpointId` parameter in the URI."
+					},
+					"response": [
+						{
+							"name": "Success: Delete Example",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/examples/{{exampleId2}}",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"examples",
+										"{{exampleId2}}"
+									]
+								}
+							},
+							"status": "No Content",
+							"code": 204,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": ""
+						}
+					]
+				},
+				{
+					"name": "Get Examples after first delete",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "f1b1c8c6-dc42-49ea-9cfa-50b246253a77",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"The response contains only one example\", () => {",
+									"    pm.expect(jsonData).to.be.an('object').to.have.keys('items');",
+									"    let items = jsonData.items;",
+									"    pm.expect(items).to.be.an('array').to.have.length(1);",
+									"});",
+									"",
+									"pm.test(\"The list contains our the second example\", () => {",
+									"    let newId = pm.environment.get(\"_secondExampleId\");",
+									"    let example = jsonData.items[0];",
+									"    pm.expect(example).to.be.an('object').to.have.keys('id', 'orgId', 'exampleField1');",
+									"    let orgId = pm.environment.get(\"_secondExampleOrgId\");",
+									"    let exampleField1 = pm.environment.get(\"_secondExample_exampleField1\");",
+									"    pm.expect(orgId).to.equal(example.orgId);",
+									"    pm.expect(exampleField1).to.equal(example.exampleField1);",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"description": "Example to request a specific named mock response",
+								"key": "x-mock-response-name",
+								"type": "text",
+								"value": "Success: GET second example"
+							}
+						],
+						"url": {
+							"raw": "{{url}}/examples",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"examples"
+							]
+						},
+						"description": "First API call to list examples.  Should be empty as none have been created yet."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Example 2",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "325d9713-aa93-4026-80cc-7c07b86f92d5",
+								"exec": [
+									"pm.environment.set(\"_isDeleteTest\", true);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "c5820ea5-b6b1-4628-a17c-d65058a7800e",
+								"exec": [
+									"pm.environment.unset(\"_isDeleteTest\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"description": "Example to request a specific named mock response",
+								"key": "x-mock-response-name",
+								"type": "text",
+								"value": "Success: Delete Example"
+							}
+						],
+						"url": {
+							"raw": "{{url}}/examples/{{_secondExampleId}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"examples",
+								"{{_secondExampleId}}"
+							]
+						},
+						"description": "Shows details for an endpoint, by ID. Certain fields, {specific to your endpoint usage}, will only be displayed for when you query the endpont details, but will not be available from the List API.\n\nSpecify the endpoing ID in the `endpointId` parameter in the URI."
+					},
+					"response": [
+						{
+							"name": "Success: Delete Example",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/examples/{{exampleId2}}",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"examples",
+										"{{exampleId2}}"
+									]
+								}
+							},
+							"status": "No Content",
+							"code": 204,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": ""
+						}
+					]
+				},
+				{
+					"name": "GET examples (empty list again)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "a246cccf-159a-4d51-811f-d46df333b444",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"",
+									"// Test that the response object contains an empty items array",
+									"pm.test(\"The response contains an empty array of items\", () => {",
+									"    pm.expect(jsonData).to.be.an('object').to.have.keys('items');",
+									"    let items = jsonData.items;",
+									"    pm.expect(items).to.be.an('array').to.have.length(0);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-mock-response-name",
+								"value": "Success: Get empty list of examples",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{url}}/examples",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"examples"
+							]
+						},
+						"description": "First API call to list examples.  Should be empty as none have been created yet."
+					},
+					"response": []
+				}
+			],
+			"description": "These test exercise an \"expected\" set of return values for the /examples endpoint.  We start with an empty list of examples, and then exercise creating new examples, listing them, modifying them and deleting them.\n\nThe tests section of this folder exercises some basic tests that should pass every time.\n\nWe assume the caller of the API is using a token that has all the scopes necessary to make basic create/list/modify/delete calls.\n\nNote that the tests tab of this folder contains basic API \"sanity checks\", that will be run after each API request responds.",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "6898b239-fc0b-46cd-ad7f-4f4a429ab9a4",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "bfc0d48c-d097-4b1e-8edf-99935a39ff60",
+						"type": "text/javascript",
+						"exec": [
+							"let deleteTest = pm.environment.get(\"_isDeleteTest\");",
+							"let latencyTolerance = parseInt(pm.environment.get(\"latencyTolerance\"));",
+							"if (typeof latencyTolerance != 'number') { latencyTolerance = 200; }",
+							"",
+							"pm.test(\"response is ok (200, or 204 for a delete)\", () => {",
+							"    if (!deleteTest) {",
+							"        pm.response.to.have.status(200);",
+							"    } else {",
+							"        pm.response.to.have.status(204);",
+							"    }",
+							"});",
+							"",
+							"pm.test(`Response time is less than ${latencyTolerance} ms. (Test skipped if latencyTolerance == 0)`, function () {",
+							"    if (latencyTolerance > 0) {",
+							"        pm.expect(pm.response.responseTime).to.be.below(latencyTolerance);",
+							"    } else {",
+							"        pm.expect('latencyTolerance <= 0. Skipped Latency Test.').to.equal('latencyTolerance <= 0. Skipped Latency Test.');",
+							"    }",
+							"});",
+							"",
+							"// Check that the response includes a tracking Id",
+							"pm.test(\"The TrackingId header is returned in the response\", () => { ",
+							"    pm.response.to.have.header(\"TrackingId\");",
+							"});",
+							"",
+							"// Check that the trackingId is populaated",
+							"pm.test(\"The TrackingId header has a reasonable value\", () => { ",
+							"    // Can this test be improved?",
+							"    let trackingId = pm.response.headers.get(\"TrackingId\");",
+							"    pm.expect(trackingId).to.have.string('ROUTER_');",
+							"});",
+							"",
+							"",
+							"",
+							"if (!deleteTest) {",
+							"    pm.test(\"response body has json with request queries\", () =>{",
+							"        pm.response.to.have.jsonBody();",
+							"    });",
+							"",
+							"    pm.test(\"The Content-Type header has the correct value\", () => { ",
+							"        pm.response.to.have.header(\"Content-Type\", \"application/json; charset=utf-8\");",
+							"    });",
+							"    ",
+							"}",
+							"",
+							""
+						]
+					}
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Cleanup Environment",
+			"item": [
+				{
+					"name": "Cleanup",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "bf22015c-d494-4096-9714-2d2d61aaebf0",
+								"exec": [
+									"function cleanup() {",
+									"    const clean = _.keys(pm.environment.toObject());",
+									"    _.each(clean, (arrItem) => {",
+									"        //console.log(`Evalauating environment varable:${arrItem}`);",
+									"        if (arrItem.startsWith(\"_\")) {",
+									"            //console.log(`Will remove temporary env var:${arrItem}`);",
+									"            pm.environment.unset(arrItem);",
+									"        }",
+									"    });",
+									"}",
+									"",
+									"// Run the cleanup script which deletes all env vars that start with \"_\"",
+									"cleanup();"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://postman-echo.com/",
+							"protocol": "https",
+							"host": [
+								"postman-echo",
+								"com"
+							],
+							"path": [
+								""
+							]
+						},
+						"description": "Dummy request to run the cleanup script in the pre-request scripts section which removes all of the temporary environment variables."
+					},
+					"response": []
+				}
+			],
+			"description": "Run a fake request in order to run a pre-request script which deletes all temporary environment variables",
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Negative Test Cases",
+			"item": [
+				{
+					"name": "GET examples missing scopes",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "a246cccf-159a-4d51-811f-d46df333b444",
+								"exec": [
+									"pm.test(\"response is 403\", () => {",
+									"    pm.response.to.have.status(403);",
+									"});",
+									"",
+									"var jsonData = JSON.parse(responseBody);",
+									"",
+									"// Test that the response object contains an empty items array",
+									"pm.test(\"The response contains an appropriate permissions message\", () => {",
+									"    pm.expect(jsonData).to.be.an('object').to.have.keys('message', 'errors', 'trackingId');",
+									"    pm.expect(jsonData.message).to.have.string(\"The server understood the request, but refused to fulfill it because the access token is missing required scopes or the user is missing required roles or licenses.\");",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN_MISSING_SCOPES}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-mock-response-name",
+								"type": "text",
+								"value": "Failure: Token Missing Scopes"
+							}
+						],
+						"url": {
+							"raw": "{{url}}/examples",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"examples"
+							]
+						},
+						"description": "Call the API with a token that does not have the scopes required to do this."
+					},
+					"response": []
+				},
+				{
+					"name": "GET examples invalid query param type",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "a246cccf-159a-4d51-811f-d46df333b444",
+								"exec": [
+									"pm.test(\"response is 400\", () => {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"var jsonData = JSON.parse(responseBody);",
+									"",
+									"// Test that the response object contains an empty items array",
+									"pm.test(\"The response contains an appropriate permissions message\", () => {",
+									"    pm.expect(jsonData).to.be.an('object').to.have.keys('message', 'errors', 'trackingId');",
+									"    pm.expect(jsonData.message).to.have.string(\"The request could not be understood by the server due to malformed syntax.\");",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-mock-response-name",
+								"type": "text",
+								"value": "Failure: Invalid Request Params"
+							}
+						],
+						"url": {
+							"raw": "{{url}}/examples?max=foo",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"examples"
+							],
+							"query": [
+								{
+									"key": "max",
+									"value": "foo",
+									"description": "Max should be an integer"
+								}
+							]
+						},
+						"description": "Call the API with a query parameter that is set ot the wrong type.   In general our APIs will ignore query params that they do not understand."
+					},
+					"response": []
+				},
+				{
+					"name": "GET examples filter by invalid ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "f1b1c8c6-dc42-49ea-9cfa-50b246253a77",
+								"exec": [
+									"pm.test(\"response is 200\", () => {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"var jsonData = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"The response contains an empty list\", () => {",
+									"    pm.expect(jsonData).to.be.an('object').to.have.keys('items');",
+									"    let items = jsonData.items;",
+									"    pm.expect(items).to.be.an('array').to.have.length(0);",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"description": "Example to request a specific named mock response",
+								"key": "x-mock-response-name",
+								"type": "text",
+								"value": "Success: Get empty list of examples"
+							}
+						],
+						"url": {
+							"raw": "{{url}}/examples?exampleField1=1234",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"examples"
+							],
+							"query": [
+								{
+									"key": "exampleField1",
+									"value": "1234"
+								}
+							]
+						},
+						"description": "Specifying an exampleID that does not exist as a query param will return a 200 and an empty list."
+					},
+					"response": []
+				},
+				{
+					"name": "GET example details with invalid exampleId",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "a246cccf-159a-4d51-811f-d46df333b444",
+								"exec": [
+									"pm.test(\"response is 404\", () => {",
+									"    pm.response.to.have.status(404);",
+									"});",
+									"",
+									"var jsonData = JSON.parse(responseBody);",
+									"",
+									"// Test that the response object contains an empty items array",
+									"pm.test(\"The response contains an appropriate permissions message\", () => {",
+									"    pm.expect(jsonData).to.be.an('object').to.have.keys('message', 'errors', 'trackingId');",
+									"    pm.expect(jsonData.message).to.have.string(\"The requested resource could not be found.\");",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-mock-response-name",
+								"type": "text",
+								"value": "Failure: Example not found"
+							}
+						],
+						"url": {
+							"raw": "{{url}}/examples/1234",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"examples",
+								"1234"
+							]
+						},
+						"description": "Call the API with an id that does not exist."
+					},
+					"response": []
+				},
+				{
+					"name": "Create Example missing scopes",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "a0ac2b8c-d3dc-4393-930d-2d6db2bb3fca",
+								"exec": [
+									"pm.test(\"response is 403\", () => {",
+									"    pm.response.to.have.status(403);",
+									"});",
+									"",
+									"var jsonData = JSON.parse(responseBody);",
+									"",
+									"// Test that the response object contains an empty items array",
+									"pm.test(\"The response contains an appropriate permissions message\", () => {",
+									"    pm.expect(jsonData).to.be.an('object').to.have.keys('message', 'errors', 'trackingId');",
+									"    pm.expect(jsonData.message).to.have.string(\"The server understood the request, but refused to fulfill it because the access token is missing required scopes or the user is missing required roles or licenses.\");",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN_MISSING_SCOPES}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "x-mock-response-name",
+								"type": "text",
+								"value": "Failure: Token Missing Scopes"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"exampleField1\": \"{{example1_exampleField1_value}}\"\n}"
+						},
+						"url": {
+							"raw": "{{url}}/examples",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"examples"
+							]
+						},
+						"description": "Call the API with a token that does not have the scopes required to do this."
+					},
+					"response": [
+						{
+							"name": "Success: Create new Example",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"exampleField1\": \"{{_exampleField1_value}}\",\n  \"orgId\": \"{{_orgId}}\"\n}"
+								},
+								"url": {
+									"raw": "{{API_URL}}/examples",
+									"host": [
+										"{{API_URL}}"
+									],
+									"path": [
+										"examples"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "Text",
+							"header": [],
+							"cookie": [],
+							"body": "{\n  \"id\": \"Y2lzY29zcGFyazovL3VzL1BFT1BMRS9mNWIzNjE4Ny1jOGRkLTQ3MjctOGIyZi1mOWM0NDdmMjkwNDY\",\n  \"orgId\": \"Y2lzY29zcGFyazovL3VzL09SR0FOSVpBVElPTi85NmFiYzJhYS0zZGNjLTExZTUtYTE1Mi1mZTM0ODE5Y2RjOWE\",\n  \"exampleField1\": \"{example value}\"\n}"
+						},
+						{
+							"name": "Failure: Bad Request Body Syntax",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "x-mock-response-name",
+										"type": "text",
+										"value": "Failure: Token Missing Scopes"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"exampleField1\": \"{{example1_exampleField1_value}}\",\n  \"badSyntax\"\n}"
+								},
+								"url": {
+									"raw": "{{url}}/examples",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"examples"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Encoding",
+									"value": "gzip"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 18 Sep 2019 18:59:13 GMT"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"1e2-u57o3LRBL/V5+Rfe/7tAE9yEmNQ\""
+								},
+								{
+									"key": "Server",
+									"value": "nginx"
+								},
+								{
+									"key": "TrackingID",
+									"value": "ROUTER_5D813874-0C33-01BB-18C9-801234123"
+								},
+								{
+									"key": "Vary",
+									"value": "Accept-Encoding"
+								},
+								{
+									"key": "x-srv-span",
+									"value": "v=1;s=e1a761f605c392f1"
+								},
+								{
+									"key": "x-srv-trace",
+									"value": "v=1;t=310be456b6354272"
+								},
+								{
+									"key": "Content-Length",
+									"value": "234"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"The request could not be understood by the server due to malformed syntax.\",\n    \"errors\": [\n        {\n            \"description\": \"The request could not be understood by the server due to malformed syntax.\"\n        }\n    ],\n    \"trackingId\": \"ROUTER_5D829007-CFE6-01BB-1D94-45CCA8561D94\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Create Example, bad request body",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "057c5615-d71b-410c-a08a-0c36b0a2cb8c",
+								"exec": [
+									"pm.test(\"response is 400\", () => {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"var jsonData = JSON.parse(responseBody);",
+									"",
+									"// Test that the response contains a new example object",
+									"pm.test(\"The response contains an new example object\", () => {",
+									"    pm.expect(jsonData).to.be.an('object');",
+									"    console.log(pm.environment.get(\"testingEnvironment\"))",
+									"    if (pm.environment.get(\"testEnvironment\") !== \"mock\") {",
+									"        // Postman mock server returns its own error object",
+									"        pm.expect(jsonData).to.be.an('object').to.have.keys('message', 'errors', 'trackingId');",
+									"        pm.expect(jsonData.message).to.have.string(\"The request could not be understood by the server due to malformed syntax.\");",
+									"    }",
+									"});",
+									"",
+									"pm.environment.unset('_testType');"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "49bef54f-11a7-409f-a42e-d01781175025",
+								"exec": [
+									"pm.environment.set('_testType', \"invalidBodyTest\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "x-mock-response-name",
+								"type": "text",
+								"value": "Failure: Bad Request Body Syntax"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"exampleField1\": \"{{example1_exampleField1_value}}\",\n  \"invalideExampleField\": \n}"
+						},
+						"url": {
+							"raw": "{{url}}/examples",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"examples"
+							]
+						},
+						"description": "A malformed request body is passed to the POST API.  Invalid fields in the response body are generally ignored."
+					},
+					"response": [
+						{
+							"name": "Success: Create new Example",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"exampleField1\": \"{{_exampleField1_value}}\",\n  \"orgId\": \"{{_orgId}}\"\n}"
+								},
+								"url": {
+									"raw": "{{API_URL}}/examples",
+									"host": [
+										"{{API_URL}}"
+									],
+									"path": [
+										"examples"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "Text",
+							"header": [],
+							"cookie": [],
+							"body": "{\n  \"id\": \"Y2lzY29zcGFyazovL3VzL1BFT1BMRS9mNWIzNjE4Ny1jOGRkLTQ3MjctOGIyZi1mOWM0NDdmMjkwNDY\",\n  \"orgId\": \"Y2lzY29zcGFyazovL3VzL09SR0FOSVpBVElPTi85NmFiYzJhYS0zZGNjLTExZTUtYTE1Mi1mZTM0ODE5Y2RjOWE\",\n  \"exampleField1\": \"{example value}\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Create Example, invalid request body value",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "55d1f422-9e1c-443a-8397-b5c0e01bf105",
+								"exec": [
+									"pm.test(\"response is 400\", () => {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"var jsonData = JSON.parse(responseBody);",
+									"",
+									"// Test that the response contains a new example object",
+									"pm.test(\"The response contains an new example object\", () => {",
+									"    pm.expect(jsonData).to.be.an('object');",
+									"    if (pm.environment.get(\"testingEnvironment\") != \"mock\") {",
+									"        // Postman mock server returns its own error object",
+									"        pm.expect(jsonData).to.be.an('object').to.have.keys('message', 'errors', 'trackingId');",
+									"        pm.expect(jsonData.message).to.have.string(\"The request could not be understood by the server due to malformed syntax.\");",
+									"    }",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "fdec75ec-1eea-4c06-903b-808278bae41e",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "x-mock-response-name",
+								"type": "text",
+								"value": "Failure: Bad Request Body Syntax"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"exampleField1\": [\"An array is an invalid value for this field\"]\n}"
+						},
+						"url": {
+							"raw": "{{url}}/examples",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"examples"
+							]
+						},
+						"description": "A request body is passed to the POST API which contains an invalid value for a field."
+					},
+					"response": [
+						{
+							"name": "Success: Create new Example",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"exampleField1\": \"{{_exampleField1_value}}\",\n  \"orgId\": \"{{_orgId}}\"\n}"
+								},
+								"url": {
+									"raw": "{{API_URL}}/examples",
+									"host": [
+										"{{API_URL}}"
+									],
+									"path": [
+										"examples"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "Text",
+							"header": [],
+							"cookie": [],
+							"body": "{\n  \"id\": \"Y2lzY29zcGFyazovL3VzL1BFT1BMRS9mNWIzNjE4Ny1jOGRkLTQ3MjctOGIyZi1mOWM0NDdmMjkwNDY\",\n  \"orgId\": \"Y2lzY29zcGFyazovL3VzL09SR0FOSVpBVElPTi85NmFiYzJhYS0zZGNjLTExZTUtYTE1Mi1mZTM0ODE5Y2RjOWE\",\n  \"exampleField1\": \"{example value}\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Create new Example",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "55d1f422-9e1c-443a-8397-b5c0e01bf105",
+								"exec": [
+									"pm.test(\"response is 200\", () => {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"var jsonData = JSON.parse(responseBody);",
+									"",
+									"// Test that the response contains a new example object",
+									"pm.test(\"The response contains an new example object\", () => {",
+									"    pm.expect(jsonData).to.be.an('object').to.have.keys('id', 'orgId', 'exampleField1');",
+									"    pm.environment.set(\"_firstExampleId\", jsonData.id);",
+									"    pm.environment.set(\"_firstExampleOrgId\", jsonData.orgId);",
+									"    pm.environment.set(\"_firstExample_exampleField1\", jsonData.exampleField1);",
+									"    ",
+									"    // Save this example, so that we can modify it in the PUT tests",
+									"    pm.environment.set(\"_firstExample\", JSON.stringify(jsonData));",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "x-mock-response-name",
+								"type": "text",
+								"value": "Success: Create new Example"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"exampleField1\": \"{{example1_exampleField1_value}}\"\n}"
+						},
+						"url": {
+							"raw": "{{url}}/examples",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"examples"
+							]
+						},
+						"description": "Create a new {example}. \n\n{Describe who can do this (ie: Only an admin can create a new endpoint)}.\n\n{Describe the scopes required to do this  (ie: Requires the `spark:example_write` scope)}."
+					},
+					"response": [
+						{
+							"name": "Success: Create new Example",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"exampleField1\": \"{{_exampleField1_value}}\",\n  \"orgId\": \"{{_orgId}}\"\n}"
+								},
+								"url": {
+									"raw": "{{API_URL}}/examples",
+									"host": [
+										"{{API_URL}}"
+									],
+									"path": [
+										"examples"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "Text",
+							"header": [],
+							"cookie": [],
+							"body": "{\n  \"id\": \"Y2lzY29zcGFyazovL3VzL1BFT1BMRS9mNWIzNjE4Ny1jOGRkLTQ3MjctOGIyZi1mOWM0NDdmMjkwNDY\",\n  \"orgId\": \"Y2lzY29zcGFyazovL3VzL09SR0FOSVpBVElPTi85NmFiYzJhYS0zZGNjLTExZTUtYTE1Mi1mZTM0ODE5Y2RjOWE\",\n  \"exampleField1\": \"{example value}\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Update Example missing scopes",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "a0ac2b8c-d3dc-4393-930d-2d6db2bb3fca",
+								"exec": [
+									"pm.test(\"response is 403\", () => {",
+									"    pm.response.to.have.status(403);",
+									"});",
+									"",
+									"var jsonData = JSON.parse(responseBody);",
+									"",
+									"// Test that the response object contains an empty items array",
+									"pm.test(\"The response contains an appropriate permissions message\", () => {",
+									"    pm.expect(jsonData).to.be.an('object').to.have.keys('message', 'errors', 'trackingId');",
+									"    pm.expect(jsonData.message).to.have.string(\"The server understood the request, but refused to fulfill it because the access token is missing required scopes or the user is missing required roles or licenses.\");",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN_MISSING_SCOPES}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "x-mock-response-name",
+								"type": "text",
+								"value": "Failure: Token Missing Scopes"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"exampleField1\": \"{{example1_exampleField1_value}}\"\n}"
+						},
+						"url": {
+							"raw": "{{url}}/examples/{{_firstExampleId}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"examples",
+								"{{_firstExampleId}}"
+							]
+						},
+						"description": "Call the API with a token that does not have the scopes required to do this."
+					},
+					"response": [
+						{
+							"name": "Failure: Bad Request Body Syntax",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "x-mock-response-name",
+										"type": "text",
+										"value": "Failure: Token Missing Scopes"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"exampleField1\": \"{{example1_exampleField1_value}}\",\n  \"badSyntax\"\n}"
+								},
+								"url": {
+									"raw": "{{url}}/examples",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"examples"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Encoding",
+									"value": "gzip"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 18 Sep 2019 18:59:13 GMT"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"1e2-u57o3LRBL/V5+Rfe/7tAE9yEmNQ\""
+								},
+								{
+									"key": "Server",
+									"value": "nginx"
+								},
+								{
+									"key": "TrackingID",
+									"value": "ROUTER_5D813874-0C33-01BB-18C9-801234123"
+								},
+								{
+									"key": "Vary",
+									"value": "Accept-Encoding"
+								},
+								{
+									"key": "x-srv-span",
+									"value": "v=1;s=e1a761f605c392f1"
+								},
+								{
+									"key": "x-srv-trace",
+									"value": "v=1;t=310be456b6354272"
+								},
+								{
+									"key": "Content-Length",
+									"value": "234"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"The request could not be understood by the server due to malformed syntax.\",\n    \"errors\": [\n        {\n            \"description\": \"The request could not be understood by the server due to malformed syntax.\"\n        }\n    ],\n    \"trackingId\": \"ROUTER_5D829007-CFE6-01BB-1D94-45CCA8561D94\"\n}"
+						},
+						{
+							"name": "Success: Create new Example",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"exampleField1\": \"{{_exampleField1_value}}\",\n  \"orgId\": \"{{_orgId}}\"\n}"
+								},
+								"url": {
+									"raw": "{{API_URL}}/examples",
+									"host": [
+										"{{API_URL}}"
+									],
+									"path": [
+										"examples"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "Text",
+							"header": [],
+							"cookie": [],
+							"body": "{\n  \"id\": \"Y2lzY29zcGFyazovL3VzL1BFT1BMRS9mNWIzNjE4Ny1jOGRkLTQ3MjctOGIyZi1mOWM0NDdmMjkwNDY\",\n  \"orgId\": \"Y2lzY29zcGFyazovL3VzL09SR0FOSVpBVElPTi85NmFiYzJhYS0zZGNjLTExZTUtYTE1Mi1mZTM0ODE5Y2RjOWE\",\n  \"exampleField1\": \"{example value}\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Update an example with bad request body",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "55d1f422-9e1c-443a-8397-b5c0e01bf105",
+								"exec": [
+									"pm.test(\"response is 400)\", () => {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"var jsonData = JSON.parse(responseBody);",
+									"",
+									"// Test that the response contains a new example object",
+									"pm.test(\"The response contains an new example object\", () => {",
+									"    pm.expect(jsonData).to.be.an('object');",
+									"    console.log(pm.environment.get(\"testingEnvironment\"))",
+									"    if (pm.environment.get(\"testEnvironment\") !== \"mock\") {",
+									"        // Postman mock server returns its own error object",
+									"        pm.expect(jsonData).to.be.an('object').to.have.keys('message', 'errors', 'trackingId');",
+									"        pm.expect(jsonData.message).to.have.string(\"The request could not be understood by the server due to malformed syntax.\");",
+									"    }",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "5e101d71-20c5-47a9-b76c-85c2fa763bf9",
+								"exec": [
+									"// Get the response body from the previous GET",
+									"let theExample = JSON.parse(pm.environment.get(\"_firstExample\"));",
+									"// This is the modification we want to do",
+									"theExample.exampleField1 = [\"An array is an invalid field value type\"];",
+									"",
+									"// Write the updated body for the PUT back to the environment",
+									"pm.environment.set(\"_updatedFirstExample\", JSON.stringify(theExample));",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "x-mock-response-name",
+								"type": "text",
+								"value": "Failure: Invalid request body in PUT"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{{_updatedFirstExample}}"
+						},
+						"url": {
+							"raw": "{{url}}/examples/{{_firstExampleId}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"examples",
+								"{{_firstExampleId}}"
+							]
+						},
+						"description": "Many PUT APIs will ignore invalid values in fields that cannot be changed, as well as ignoring additional invalid fields.\n\nDevelopers who specify an invalid value for a field that MAY be changed via the PUT, should expect a 400 response"
+					},
+					"response": [
+						{
+							"name": "Success: Create new Example",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"exampleField1\": \"{{_exampleField1_value}}\",\n  \"orgId\": \"{{_orgId}}\"\n}"
+								},
+								"url": {
+									"raw": "{{API_URL}}/examples",
+									"host": [
+										"{{API_URL}}"
+									],
+									"path": [
+										"examples"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "Text",
+							"header": [],
+							"cookie": [],
+							"body": "{\n  \"id\": \"Y2lzY29zcGFyazovL3VzL1BFT1BMRS9mNWIzNjE4Ny1jOGRkLTQ3MjctOGIyZi1mOWM0NDdmMjkwNDY\",\n  \"orgId\": \"Y2lzY29zcGFyazovL3VzL09SR0FOSVpBVElPTi85NmFiYzJhYS0zZGNjLTExZTUtYTE1Mi1mZTM0ODE5Y2RjOWE\",\n  \"exampleField1\": \"{example value}\"\n}"
+						}
+					]
+				},
+				{
+					"name": "PUT update example with invalid id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "a246cccf-159a-4d51-811f-d46df333b444",
+								"exec": [
+									"pm.test(\"response is 404\", () => {",
+									"    pm.response.to.have.status(404);",
+									"});",
+									"",
+									"var jsonData = JSON.parse(responseBody);",
+									"",
+									"// Test that the response object contains an empty items array",
+									"pm.test(\"The response contains an appropriate permissions message\", () => {",
+									"    pm.expect(jsonData).to.be.an('object').to.have.keys('message', 'errors', 'trackingId');",
+									"    pm.expect(jsonData.message).to.have.string(\"The requested resource could not be found.\");",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "72f38bd8-bcaf-49b7-a7e2-b215369f4b3c",
+								"exec": [
+									"// Get the response body from the previous GET",
+									"let theExample = JSON.parse(pm.environment.get(\"_firstExample\"));",
+									"// This is the modification we want to do",
+									"theExample.exampleField1 = \"{{example1_exampleField1_newValue}}\";",
+									"",
+									"// Write the updated body for the PUT back to the environment",
+									"pm.environment.set(\"_updatedFirstExample\", JSON.stringify(theExample));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN_MISSING_SCOPES}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "x-mock-response-name",
+								"type": "text",
+								"value": "Failure: Example not found"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{{_updatedFirstExample}}\t"
+						},
+						"url": {
+							"raw": "{{url}}/examples/1234",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"examples",
+								"1234"
+							]
+						},
+						"description": "Call the API with an id that does not exist."
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE Example missing scopes Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "a0ac2b8c-d3dc-4393-930d-2d6db2bb3fca",
+								"exec": [
+									"pm.test(\"response is 403\", () => {",
+									"    pm.response.to.have.status(403);",
+									"});",
+									"",
+									"var jsonData = JSON.parse(responseBody);",
+									"",
+									"// Test that the response object contains an empty items array",
+									"pm.test(\"The response contains an appropriate permissions message\", () => {",
+									"    pm.expect(jsonData).to.be.an('object').to.have.keys('message', 'errors', 'trackingId');",
+									"    pm.expect(jsonData.message).to.have.string(\"The server understood the request, but refused to fulfill it because the access token is missing required scopes or the user is missing required roles or licenses.\");",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN_MISSING_SCOPES}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "x-mock-response-name",
+								"type": "text",
+								"value": "Failure: Token Missing Scopes"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"exampleField1\": \"{{example1_exampleField1_value}}\"\n}"
+						},
+						"url": {
+							"raw": "{{url}}/examples/{{_firstExampleId}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"examples",
+								"{{_firstExampleId}}"
+							]
+						},
+						"description": "Call the API with a token that does not have the scopes required to do this."
+					},
+					"response": [
+						{
+							"name": "Success: Create new Example",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"exampleField1\": \"{{_exampleField1_value}}\",\n  \"orgId\": \"{{_orgId}}\"\n}"
+								},
+								"url": {
+									"raw": "{{API_URL}}/examples",
+									"host": [
+										"{{API_URL}}"
+									],
+									"path": [
+										"examples"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "Text",
+							"header": [],
+							"cookie": [],
+							"body": "{\n  \"id\": \"Y2lzY29zcGFyazovL3VzL1BFT1BMRS9mNWIzNjE4Ny1jOGRkLTQ3MjctOGIyZi1mOWM0NDdmMjkwNDY\",\n  \"orgId\": \"Y2lzY29zcGFyazovL3VzL09SR0FOSVpBVElPTi85NmFiYzJhYS0zZGNjLTExZTUtYTE1Mi1mZTM0ODE5Y2RjOWE\",\n  \"exampleField1\": \"{example value}\"\n}"
+						},
+						{
+							"name": "Failure: Bad Request Body Syntax",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "x-mock-response-name",
+										"type": "text",
+										"value": "Failure: Token Missing Scopes"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"exampleField1\": \"{{example1_exampleField1_value}}\",\n  \"badSyntax\"\n}"
+								},
+								"url": {
+									"raw": "{{url}}/examples",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"examples"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Encoding",
+									"value": "gzip"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 18 Sep 2019 18:59:13 GMT"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"1e2-u57o3LRBL/V5+Rfe/7tAE9yEmNQ\""
+								},
+								{
+									"key": "Server",
+									"value": "nginx"
+								},
+								{
+									"key": "TrackingID",
+									"value": "ROUTER_5D813874-0C33-01BB-18C9-801234123"
+								},
+								{
+									"key": "Vary",
+									"value": "Accept-Encoding"
+								},
+								{
+									"key": "x-srv-span",
+									"value": "v=1;s=e1a761f605c392f1"
+								},
+								{
+									"key": "x-srv-trace",
+									"value": "v=1;t=310be456b6354272"
+								},
+								{
+									"key": "Content-Length",
+									"value": "234"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"The request could not be understood by the server due to malformed syntax.\",\n    \"errors\": [\n        {\n            \"description\": \"The request could not be understood by the server due to malformed syntax.\"\n        }\n    ],\n    \"trackingId\": \"ROUTER_5D829007-CFE6-01BB-1D94-45CCA8561D94\"\n}"
+						}
+					]
+				},
+				{
+					"name": "DEL example with invalid id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "a246cccf-159a-4d51-811f-d46df333b444",
+								"exec": [
+									"pm.test(\"response is 404\", () => {",
+									"    pm.response.to.have.status(404);",
+									"});",
+									"",
+									"var jsonData = JSON.parse(responseBody);",
+									"",
+									"// Test that the response object contains an empty items array",
+									"pm.test(\"The response contains an appropriate permissions message\", () => {",
+									"    pm.expect(jsonData).to.be.an('object').to.have.keys('message', 'errors', 'trackingId');",
+									"    pm.expect(jsonData.message).to.have.string(\"The requested resource could not be found.\");",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "72f38bd8-bcaf-49b7-a7e2-b215369f4b3c",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN_MISSING_SCOPES}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "x-mock-response-name",
+								"type": "text",
+								"value": "Failure: Example not found"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/examples/1234",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"examples",
+								"1234"
+							]
+						},
+						"description": "Call the API with an id that does not exist."
+					},
+					"response": []
+				}
+			],
+			"description": "This is a set of test cases to validate \"non happy paths\" for calls to the examples API.  It exercises things like invalid parameters, invalid parameter values, invalid tokens, etc.",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "2cdf9413-6dca-433f-a3ee-b4bffb58bed1",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "3596d7be-1bfb-4c64-aa75-9f61d4abef81",
+						"type": "text/javascript",
+						"exec": [
+							"let testType = pm.environment.get(\"_testType\");",
+							"let testEnvironment = pm.environment.get(\"testEnvironment\");",
+							"",
+							"let latencyTolerance = parseInt(pm.environment.get(\"latencyTolerance\"));",
+							"if (typeof latencyTolerance != 'number') { latencyTolerance = 200; }",
+							"",
+							"pm.test(`Response time is less than ${latencyTolerance} ms. (Test skipped if latencyTolerance == 0)`, function () {",
+							"    if (latencyTolerance > 0) {",
+							"        pm.expect(pm.response.responseTime).to.be.below(latencyTolerance);",
+							"    } else {",
+							"        pm.expect('latencyTolerance <= 0. Skipped Latency Test.').to.equal('latencyTolerance <= 0. Skipped Latency Test.');",
+							"    }",
+							"});",
+							"",
+							"pm.test(\"The Content-Type header has the correct value\", () => { ",
+							"    pm.response.to.have.header(\"Content-Type\", \"application/json; charset=utf-8\");",
+							"});",
+							"",
+							"console.log(testEnvironment === 'mock');",
+							"console.log(testType === \"invalidBodyTest\");",
+							"console.log(!((testEnvironment === 'mock') && (testType === \"invalidBodyTest\")));",
+							"if(!((testEnvironment === 'mock') && (testType === \"invalidBodyTest\"))) {",
+							"    // POSTMAN mock server does not return a trackingID for an invalid body",
+							"    pm.test(\"The TrackingId header is returned in the response\", () => { ",
+							"        pm.response.to.have.header(\"TrackingId\");",
+							"    });",
+							"    ",
+							"    pm.test(\"The TrackingId header has a reasonable value\", () => { ",
+							"        // Can this test be improved?",
+							"        let trackingId = pm.response.headers.get(\"TrackingId\");",
+							"        pm.expect(trackingId).to.have.string('ROUTER_');",
+							"    });",
+							"}",
+							"",
+							"pm.test(\"response body has json\", () =>{",
+							"    pm.response.to.have.jsonBody();",
+							"});",
+							"",
+							"",
+							""
+						]
+					}
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Cleanup Environment (2)",
+			"item": [
+				{
+					"name": "Delete Example created in  negative test cases",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "325d9713-aa93-4026-80cc-7c07b86f92d5",
+								"exec": [
+									"pm.environment.set(\"_isDeleteTest\", true);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "c5820ea5-b6b1-4628-a17c-d65058a7800e",
+								"exec": [
+									"pm.environment.unset(\"_isDeleteTest\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "x-mock-response-name",
+								"value": "Success: Delete Example",
+								"description": "Example to request a specific named mock response",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{url}}/examples/{{_firstExampleId}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"examples",
+								"{{_firstExampleId}}"
+							]
+						},
+						"description": "Shows details for an endpoint, by ID. Certain fields, {specific to your endpoint usage}, will only be displayed for when you query the endpont details, but will not be available from the List API.\n\nSpecify the endpoing ID in the `endpointId` parameter in the URI."
+					},
+					"response": [
+						{
+							"name": "Success: Delete Example",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/examples/{{exampleId2}}",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"examples",
+										"{{exampleId2}}"
+									]
+								}
+							},
+							"status": "No Content",
+							"code": 204,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": ""
+						}
+					]
+				},
+				{
+					"name": "Cleanup",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "bf22015c-d494-4096-9714-2d2d61aaebf0",
+								"exec": [
+									"function cleanup() {",
+									"    const clean = _.keys(pm.environment.toObject());",
+									"    _.each(clean, (arrItem) => {",
+									"        //console.log(`Evalauating environment varable:${arrItem}`);",
+									"        if (arrItem.startsWith(\"_\")) {",
+									"            //console.log(`Will remove temporary env var:${arrItem}`);",
+									"            pm.environment.unset(arrItem);",
+									"        }",
+									"    });",
+									"}",
+									"",
+									"// Run the cleanup script which deletes all env vars that start with \"_\"",
+									"cleanup();"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://postman-echo.com/",
+							"protocol": "https",
+							"host": [
+								"postman-echo",
+								"com"
+							],
+							"path": [
+								""
+							]
+						},
+						"description": "Dummy request to run the cleanup script in the pre-request scripts section which removes all of the temporary environment variables."
+					},
+					"response": []
+				}
+			],
+			"description": "Run a fake request in order to run a pre-request script which deletes all temporary environment variables",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "e7f3db33-54c8-4ea7-9920-e9ab97ae0f44",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "3d48a31b-fe48-41e7-bc87-95822d017020",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			],
+			"protocolProfileBehavior": {}
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{ACCESS_TOKEN}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "924cd763-db55-4d75-a910-52e267f5d544",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "b9095a95-38a5-40de-81c3-396725b2dc42",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"protocolProfileBehavior": {}
+}

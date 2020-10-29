@@ -1,0 +1,1760 @@
+{
+	"info": {
+		"_postman_id": "51508232-f470-4772-ae17-07356974e4d1",
+		"name": "Example API Blueprint_with_partner_set_orgId",
+		"description": "An example postman collection to demonstrate a design, test and mock server of an API.\n\nThe idea behind the Blueprint collection is that this is the place where a designer can DEFINE each of the APIs.   For each API, a designer should create \"sample responses\", that describe typical happy path responses as well as common error responses (authorization issues, bad query params, or request bodies, etc).  These API definitions and responses can be used to create API specifications (using third party tools that convert Postman collections to OpenAPI or Swagger for example), OR a development team can use the postman collection itself as the design.\n\nThe sample responses defined in this collection can be returned by a mock server, which Postman can provide.  The other folder \"Contract Tests\", provides a set of tests that validate that the API is working correctly.  We create these tests IN THE DESIGN PHASE and run it against the mock server (typicaly updating the sample responses to support additional test cases as we iterate on design).   Once the API is implemented these same test can be used to validate that the implementation has been done in alignment with the design.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "List Examples",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://10c981dc-b76b-4daa-b140-f1c4d313b2a3.mock.pstmn.io/examples?exampleField1=string&id=string&max=integer&orgId=string",
+					"protocol": "https",
+					"host": [
+						"10c981dc-b76b-4daa-b140-f1c4d313b2a3",
+						"mock",
+						"pstmn",
+						"io"
+					],
+					"path": [
+						"examples"
+					],
+					"query": [
+						{
+							"key": "exampleField1",
+							"value": "string",
+							"description": "Optional. Filter response based on exampleFields1 value"
+						},
+						{
+							"key": "id",
+							"value": "string",
+							"description": "Optional. Filter response based on the id of the example."
+						},
+						{
+							"key": "max",
+							"value": "integer",
+							"description": "Optional. Maximum number of values returned in the list. Default is 100. Maximum supported is 1000"
+						},
+						{
+							"key": "orgId",
+							"value": "string",
+							"description": "Optional.  Partner Admin's may specify the org they wish to list examples for.  If not specified, the caller's org will be used"
+						}
+					]
+				},
+				"description": "List {examples} in your organization. {If applicable describe how this list will differ for users with different roles} .\n\nLong result sets will be split into [pages](/docs/api/basics/pagination)."
+			},
+			"response": [
+				{
+					"name": "Failure: Token Missing Scopes",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{API_URL}}/examples",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"examples"
+							]
+						}
+					},
+					"status": "Forbidden",
+					"code": 403,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "TrackingID",
+							"value": "ROUTER_5D813874-0C33-01BB-18C9-80123456",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"message\": \"The server understood the request, but refused to fulfill it because the access token is missing required scopes or the user is missing required roles or licenses.\",\n    \"errors\": [\n        {\n            \"description\": \"The server understood the request, but refused to fulfill it because the access token is missing required scopes or the user is missing required roles or licenses.\"\n        }\n    ],\n    \"trackingId\": \"ROUTER_5D827BAB-F207-01BB-26BB-45CCA85626BB\"\n}"
+				},
+				{
+					"name": "Success: Get list with one example and link header",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": "All good APIs should return JSON!",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{API_URL}}/examples?max=1",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"examples"
+							],
+							"query": [
+								{
+									"key": "max",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "Link",
+							"value": "<https://10c981dc-b76b-4daa-b140-f1c4d313b2a3.mock.pstmn.io/examples?max=1&cursor=Y2lzY29zcGFyazovL3VzL1JPT00vMzdkMTU0YTAtY2U0ZC0xMWU5LWIwNzUtNjMxYmFkZmMzOTY2>; rel=\"next\"",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "TrackingID",
+							"value": "ROUTER_5D813874-0C33-01BB-18C9-8012345",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"items\": [\n\t\t{\n\t\t    \"id\": \"SERVER_ASSIGNED_ID_FOR_EXAMPLE_1\",\n\t\t    \"orgId\": \"TEST_USER_1_ORGID\",\n\t\t    \"exampleField1\": \"example one exampleField1 value\"\n\t\t}\n    ]\n}"
+				},
+				{
+					"name": "Success: GET second example_with_partner_set_orgId",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": "All good APIs should return JSON!",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "https://10c981dc-b76b-4daa-b140-f1c4d313b2a3.mock.pstmn.io/examples?id={{_secondExampleId}}",
+							"protocol": "https",
+							"host": [
+								"10c981dc-b76b-4daa-b140-f1c4d313b2a3",
+								"mock",
+								"pstmn",
+								"io"
+							],
+							"path": [
+								"examples"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "{{_secondExampleId}}",
+									"description": "Optional. Maximum number of values returned in the list. Default is 100. Maximum supported is 1000"
+								}
+							]
+						}
+					},
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "TrackingID",
+							"value": "ROUTER_5D813874-0C33-01BB-18C9-80123459",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n\t\"items\":[\n\t\t{\n\t\t\t\"id\":\"SERVER_ASSIGNED_ID_FOR_EXAMPLE_2\",\n\t\t\t\"orgId\":\"ID_OF_PARTNER_MANAGED_ORG\",\n\t\t\t\"exampleField1\":\"example two exampleField1 value\"\n\t\t}\n\t]\n\n}"
+				},
+				{
+					"name": "Success: Get list with two examples_with_partner_set_orgId",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": "All good APIs should return JSON!",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "https://10c981dc-b76b-4daa-b140-f1c4d313b2a3.mock.pstmn.io/examples?exampleField1=string&id=string&max=integer",
+							"protocol": "https",
+							"host": [
+								"10c981dc-b76b-4daa-b140-f1c4d313b2a3",
+								"mock",
+								"pstmn",
+								"io"
+							],
+							"path": [
+								"examples"
+							],
+							"query": [
+								{
+									"key": "exampleField1",
+									"value": "string",
+									"description": "Optional. Filter response based on exampleFields1 value"
+								},
+								{
+									"key": "id",
+									"value": "string",
+									"description": "Optional. Filter response based on the id of the example."
+								},
+								{
+									"key": "max",
+									"value": "integer",
+									"description": "Optional. Maximum number of values returned in the list. Default is 100. Maximum supported is 1000"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "TrackingID",
+							"value": "ROUTER_5D813874-0C33-01BB-18C9-80123458",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\"items\":[{\"id\":\"SERVER_ASSIGNED_ID_FOR_EXAMPLE_1\",\"orgId\":\"ID_OF_PARTNER_MANAGED_ORG\",\"exampleField1\":\"example one exampleField1 value\"},{\"id\":\"SERVER_ASSIGNED_ID_FOR_EXAMPLE_2\",\"orgId\":\"ID_OF_PARTNER_MANAGED_ORG\",\"exampleField1\":\"example two exampleField1 value\"}]}"
+				},
+				{
+					"name": "Success: GET all examples with update",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": "All good APIs should return JSON!",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "https://10c981dc-b76b-4daa-b140-f1c4d313b2a3.mock.pstmn.io/examples",
+							"protocol": "https",
+							"host": [
+								"10c981dc-b76b-4daa-b140-f1c4d313b2a3",
+								"mock",
+								"pstmn",
+								"io"
+							],
+							"path": [
+								"examples"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "TrackingID",
+							"value": "ROUTER_5D813874-0C33-01BB-18C9-80123412",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"items\": [\n\t\t{\n\t\t    \"id\": \"SERVER_ASSIGNED_ID_FOR_EXAMPLE_1\",\n\t\t    \"orgId\": \"TEST_USER_1_ORGID\",\n\t\t\t\"exampleField1\": \"new example1Field value for first example\"\n\t\t},\n\t\t{\n\t\t    \"id\": \"SERVER_ASSIGNED_ID_FOR_EXAMPLE_2\",\n\t\t    \"orgId\": \"TEST_USER_1_ORGID\",\n\t\t    \"exampleField1\": \"example two exampleField1 value\"\n\t\t}\n\n    ]\n}"
+				},
+				{
+					"name": "Success: Get list with one example_with_partner_set_orgId",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": "All good APIs should return JSON!",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "https://10c981dc-b76b-4daa-b140-f1c4d313b2a3.mock.pstmn.io/examples",
+							"protocol": "https",
+							"host": [
+								"10c981dc-b76b-4daa-b140-f1c4d313b2a3",
+								"mock",
+								"pstmn",
+								"io"
+							],
+							"path": [
+								"examples"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "TrackingID",
+							"value": "ROUTER_5D813874-0C33-01BB-18C9-80123458",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\"items\":[{\"id\":\"SERVER_ASSIGNED_ID_FOR_EXAMPLE_1\",\"orgId\":\"ID_OF_PARTNER_MANAGED_ORG\",\"exampleField1\":\"example one exampleField1 value\"}]}"
+				},
+				{
+					"name": "Success: Get empty list of examples",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": "All good APIs return JSON",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "\"Bearer SET_THIS_TO_THE_TOKEN_OF_THE_TEST_USER\"",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "https://10c981dc-b76b-4daa-b140-f1c4d313b2a3.mock.pstmn.io/examples",
+							"protocol": "https",
+							"host": [
+								"10c981dc-b76b-4daa-b140-f1c4d313b2a3",
+								"mock",
+								"pstmn",
+								"io"
+							],
+							"path": [
+								"examples"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "TrackingID",
+							"value": "ROUTER_5D813874-0C33-01BB-18C9-80123457",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"items\": []\n}"
+				},
+				{
+					"name": "Success: Get list with one example and link header_with_partner_set_orgId",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": "All good APIs should return JSON!",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{API_URL}}/examples?max=1",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"examples"
+							],
+							"query": [
+								{
+									"key": "max",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "Link",
+							"value": "<https://10c981dc-b76b-4daa-b140-f1c4d313b2a3.mock.pstmn.io/examples?max=1&cursor=Y2lzY29zcGFyazovL3VzL1JPT00vMzdkMTU0YTAtY2U0ZC0xMWU5LWIwNzUtNjMxYmFkZmMzOTY2>; rel=\"next\"",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "TrackingID",
+							"value": "ROUTER_5D813874-0C33-01BB-18C9-8012345",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\"items\":[{\"id\":\"SERVER_ASSIGNED_ID_FOR_EXAMPLE_1\",\"orgId\":\"ID_OF_PARTNER_MANAGED_ORG\",\"exampleField1\":\"example one exampleField1 value\"}]}"
+				},
+				{
+					"name": "Success: GET second example",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": "All good APIs should return JSON!",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "https://10c981dc-b76b-4daa-b140-f1c4d313b2a3.mock.pstmn.io/examples?id={{_secondExampleId}}",
+							"protocol": "https",
+							"host": [
+								"10c981dc-b76b-4daa-b140-f1c4d313b2a3",
+								"mock",
+								"pstmn",
+								"io"
+							],
+							"path": [
+								"examples"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "{{_secondExampleId}}",
+									"description": "Optional. Maximum number of values returned in the list. Default is 100. Maximum supported is 1000"
+								}
+							]
+						}
+					},
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "TrackingID",
+							"value": "ROUTER_5D813874-0C33-01BB-18C9-80123459",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"items\": [\n        {\n            \"id\": \"SERVER_ASSIGNED_ID_FOR_EXAMPLE_2\",\n            \"orgId\": \"TEST_USER_1_ORGID\",\n            \"exampleField1\": \"example two exampleField1 value\"\n        }\n    ]\n}"
+				},
+				{
+					"name": "Failure: Invalid Request Params",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": "All good APIs should return JSON!",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "https://10c981dc-b76b-4daa-b140-f1c4d313b2a3.mock.pstmn.io/examples?max=foobar",
+							"protocol": "https",
+							"host": [
+								"10c981dc-b76b-4daa-b140-f1c4d313b2a3",
+								"mock",
+								"pstmn",
+								"io"
+							],
+							"path": [
+								"examples"
+							],
+							"query": [
+								{
+									"key": "max",
+									"value": "foobar"
+								}
+							]
+						}
+					},
+					"code": 400,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "TrackingID",
+							"value": "ROUTER_5D813874-0C33-01BB-18C9-801234321",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"message\": \"The request could not be understood by the server due to malformed syntax.\",\n    \"errors\": [\n        {\n            \"description\": \"The request could not be understood by the server due to malformed syntax.\"\n        }\n    ],\n    \"trackingId\": \"ROUTER_5D829007-CFE6-01BB-1D94-45CCA8561D94\"\n}"
+				},
+				{
+					"name": "Success: Get list with one example",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": "All good APIs should return JSON!",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "https://10c981dc-b76b-4daa-b140-f1c4d313b2a3.mock.pstmn.io/examples",
+							"protocol": "https",
+							"host": [
+								"10c981dc-b76b-4daa-b140-f1c4d313b2a3",
+								"mock",
+								"pstmn",
+								"io"
+							],
+							"path": [
+								"examples"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "TrackingID",
+							"value": "ROUTER_5D813874-0C33-01BB-18C9-80123458",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"items\": [\n\t\t{\n\t\t    \"id\": \"SERVER_ASSIGNED_ID_FOR_EXAMPLE_1\",\n\t\t    \"orgId\": \"TEST_USER_1_ORGID\",\n\t\t    \"exampleField1\": \"example one exampleField1 value\"\n\t\t}\n    ]\n}"
+				},
+				{
+					"name": "Success: Get list with two examples",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": "All good APIs should return JSON!",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "https://10c981dc-b76b-4daa-b140-f1c4d313b2a3.mock.pstmn.io/examples?exampleField1=string&id=string&max=integer",
+							"protocol": "https",
+							"host": [
+								"10c981dc-b76b-4daa-b140-f1c4d313b2a3",
+								"mock",
+								"pstmn",
+								"io"
+							],
+							"path": [
+								"examples"
+							],
+							"query": [
+								{
+									"key": "exampleField1",
+									"value": "string",
+									"description": "Optional. Filter response based on exampleFields1 value"
+								},
+								{
+									"key": "id",
+									"value": "string",
+									"description": "Optional. Filter response based on the id of the example."
+								},
+								{
+									"key": "max",
+									"value": "integer",
+									"description": "Optional. Maximum number of values returned in the list. Default is 100. Maximum supported is 1000"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "TrackingID",
+							"value": "ROUTER_5D813874-0C33-01BB-18C9-80123458",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"items\": [\n\t\t{\n\t\t    \"id\": \"SERVER_ASSIGNED_ID_FOR_EXAMPLE_1\",\n\t\t    \"orgId\": \"TEST_USER_1_ORGID\",\n\t\t    \"exampleField1\": \"example one exampleField1 value\"\n\t\t},\n\t\t{\n\t\t    \"id\": \"SERVER_ASSIGNED_ID_FOR_EXAMPLE_2\",\n\t\t    \"orgId\": \"TEST_USER_1_ORGID\",\n\t\t    \"exampleField1\": \"example two exampleField1 value\"\n\t\t}\n\t]\n}"
+				},
+				{
+					"name": "Success: GET all examples with update_with_partner_set_orgId",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": "All good APIs should return JSON!",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "https://10c981dc-b76b-4daa-b140-f1c4d313b2a3.mock.pstmn.io/examples",
+							"protocol": "https",
+							"host": [
+								"10c981dc-b76b-4daa-b140-f1c4d313b2a3",
+								"mock",
+								"pstmn",
+								"io"
+							],
+							"path": [
+								"examples"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "TrackingID",
+							"value": "ROUTER_5D813874-0C33-01BB-18C9-80123412",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\"items\":[{\"id\":\"SERVER_ASSIGNED_ID_FOR_EXAMPLE_1\",\"orgId\":\"ID_OF_PARTNER_MANAGED_ORG\",\"exampleField1\":\"new example1Field value for first example\"},{\"id\":\"SERVER_ASSIGNED_ID_FOR_EXAMPLE_2\",\"orgId\":\"ID_OF_PARTNER_MANAGED_ORG\",\"exampleField1\":\"example two exampleField1 value\"}]}"
+				}
+			]
+		},
+		{
+			"name": "Get Example Details",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://10c981dc-b76b-4daa-b140-f1c4d313b2a3.mock.pstmn.io/examples/:exampleId",
+					"protocol": "https",
+					"host": [
+						"10c981dc-b76b-4daa-b140-f1c4d313b2a3",
+						"mock",
+						"pstmn",
+						"io"
+					],
+					"path": [
+						"examples",
+						":exampleId"
+					],
+					"variable": [
+						{
+							"key": "exampleId",
+							"value": "string",
+							"description": "Required.  ID of example to return."
+						}
+					]
+				},
+				"description": "Shows details for an {example}, by ID. \n\nCertain fields, {specific to your example usage}, will only be displayed for when you query the endpont details, but will not be available from the List API.\n\nSpecify the ID of the {example} to inspect via the `exampleId` parameter in the URI."
+			},
+			"response": [
+				{
+					"name": "Success: Get Example Details",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://polls.apiblueprint.org/endpoints/<string>",
+							"protocol": "http",
+							"host": [
+								"polls",
+								"apiblueprint",
+								"org"
+							],
+							"path": [
+								"endpoints",
+								"<string>"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "TrackingID",
+							"value": "ROUTER_5D813874-0C33-01BB-18C9-8012344",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"id\": \"SERVER_ASSIGNED_ID_FOR_EXAMPLE_1\",\n    \"orgId\": \"TEST_USER_1_ORGID\",\n    \"exampleField1\": \"example one exampleField1 value\"\n}\n"
+				},
+				{
+					"name": "Failure: Example not found",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{url}}/examples/:exampleId",
+							"host": [
+								"{url}}"
+							],
+							"path": [
+								"examples",
+								":exampleId"
+							],
+							"variable": [
+								{
+									"key": "exampleId",
+									"value": "string",
+									"description": "Required.  ID of example to return."
+								}
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "TrackingID",
+							"value": "ROUTER_5D813874-0C33-01BB-18C9-801234321",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"message\": \"The requested resource could not be found.\",\n    \"errors\": [\n        {\n            \"description\": \"The requested resource could not be found.\"\n        }\n    ],\n    \"trackingId\": \"ROUTER_5D82A370-E932-01BB-474D-45CCA856474D\"\n}"
+				},
+				{
+					"name": "Success: Get Example Details_with_partner_set_orgId",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://polls.apiblueprint.org/endpoints/<string>",
+							"protocol": "http",
+							"host": [
+								"polls",
+								"apiblueprint",
+								"org"
+							],
+							"path": [
+								"endpoints",
+								"<string>"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "TrackingID",
+							"value": "ROUTER_5D813874-0C33-01BB-18C9-8012344",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\"id\":\"SERVER_ASSIGNED_ID_FOR_EXAMPLE_1\",\"orgId\":\"ID_OF_PARTNER_MANAGED_ORG\",\"exampleField1\":\"example one exampleField1 value\"}"
+				}
+			]
+		},
+		{
+			"name": "Create new Example",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"exampleField1\": \"{{_exampleField1_value}}\",\n  \"orgId\": \"{{_orgId}}\"\n}"
+				},
+				"url": {
+					"raw": "https://10c981dc-b76b-4daa-b140-f1c4d313b2a3.mock.pstmn.io/examples",
+					"protocol": "https",
+					"host": [
+						"10c981dc-b76b-4daa-b140-f1c4d313b2a3",
+						"mock",
+						"pstmn",
+						"io"
+					],
+					"path": [
+						"examples"
+					]
+				},
+				"description": "Create a new {example}. \n\n{Describe who can do this (ie: Only an admin can create a new endpoint)}.\n\n{Describe the scopes required to do this  (ie: Requires the `spark:example_write` scope)}.\n\nThe following fields can be included in the JSON request body:\n* exampleField1 - String/Required - A Field in our new example object\n* ordId - String/Optional - If not set, example will be created in the org of the caller.  Partner Admins may set the orgId to create the new example in."
+			},
+			"response": [
+				{
+					"name": "Success: Create second Example",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"exampleField1\": \"example one exampleField1 value\"\n}"
+						},
+						"url": {
+							"raw": "https://10c981dc-b76b-4daa-b140-f1c4d313b2a3.mock.pstmn.io/examples",
+							"protocol": "https",
+							"host": [
+								"10c981dc-b76b-4daa-b140-f1c4d313b2a3",
+								"mock",
+								"pstmn",
+								"io"
+							],
+							"path": [
+								"examples"
+							]
+						}
+					},
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "TrackingID",
+							"value": "ROUTER_5D813874-0C33-01BB-18C9-80123432",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"id\": \"SERVER_ASSIGNED_ID_FOR_EXAMPLE_2\",\n    \"orgId\": \"TEST_USER_1_ORGID\",\n    \"exampleField1\": \"example two exampleField1 value\"\n}"
+				},
+				{
+					"name": "Failure: Token Missing Scopes",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"exampleField1\": \"{{_exampleField1_value}}\",\n  \"orgId\": \"{{_orgId}}\"\n}"
+						},
+						"url": {
+							"raw": "{{API_URL}}/examples",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"examples"
+							]
+						}
+					},
+					"status": "Forbidden",
+					"code": 403,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "TrackingID",
+							"value": "ROUTER_5D813874-0C33-01BB-18C9-801234123",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"message\": \"The server understood the request, but refused to fulfill it because the access token is missing required scopes or the user is missing required roles or licenses.\",\n    \"errors\": [\n        {\n            \"description\": \"The server understood the request, but refused to fulfill it because the access token is missing required scopes or the user is missing required roles or licenses.\"\n        }\n    ],\n    \"trackingId\": \"ROUTER_5D813874-0C33-01BB-18C9-801234123\"\n}"
+				},
+				{
+					"name": "Success: Create second Example_with_partner_set_orgId",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"exampleField1\": \"example one exampleField1 value\"\n}"
+						},
+						"url": {
+							"raw": "https://10c981dc-b76b-4daa-b140-f1c4d313b2a3.mock.pstmn.io/examples",
+							"protocol": "https",
+							"host": [
+								"10c981dc-b76b-4daa-b140-f1c4d313b2a3",
+								"mock",
+								"pstmn",
+								"io"
+							],
+							"path": [
+								"examples"
+							]
+						}
+					},
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "TrackingID",
+							"value": "ROUTER_5D813874-0C33-01BB-18C9-80123432",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\"id\":\"SERVER_ASSIGNED_ID_FOR_EXAMPLE_2\",\"orgId\":\"ID_OF_PARTNER_MANAGED_ORG\",\"exampleField1\":\"example two exampleField1 value\"}"
+				},
+				{
+					"name": "Success: Create new Example_with_partner_set_orgId",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"exampleField1\": \"example one exampleField1 value\"\n}"
+						},
+						"url": {
+							"raw": "https://10c981dc-b76b-4daa-b140-f1c4d313b2a3.mock.pstmn.io/examples",
+							"protocol": "https",
+							"host": [
+								"10c981dc-b76b-4daa-b140-f1c4d313b2a3",
+								"mock",
+								"pstmn",
+								"io"
+							],
+							"path": [
+								"examples"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "TrackingID",
+							"value": "ROUTER_5D813874-0C33-01BB-18C9-80123431",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\"id\":\"SERVER_ASSIGNED_ID_FOR_EXAMPLE_1\",\"orgId\":\"ID_OF_PARTNER_MANAGED_ORG\",\"exampleField1\":\"example one exampleField1 value\"}"
+				},
+				{
+					"name": "Success: Create new Example",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"exampleField1\": \"example one exampleField1 value\"\n}"
+						},
+						"url": {
+							"raw": "https://10c981dc-b76b-4daa-b140-f1c4d313b2a3.mock.pstmn.io/examples",
+							"protocol": "https",
+							"host": [
+								"10c981dc-b76b-4daa-b140-f1c4d313b2a3",
+								"mock",
+								"pstmn",
+								"io"
+							],
+							"path": [
+								"examples"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "TrackingID",
+							"value": "ROUTER_5D813874-0C33-01BB-18C9-80123431",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"id\": \"SERVER_ASSIGNED_ID_FOR_EXAMPLE_1\",\n    \"orgId\": \"TEST_USER_1_ORGID\",\n    \"exampleField1\": \"example one exampleField1 value\"\n}"
+				},
+				{
+					"name": "Failure: Bad Request Body Syntax",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"exampleField1\": [\"An array is an invalid value type for this field\"]\n}"
+						},
+						"url": {
+							"raw": "{{API_URL}}/examples",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"examples"
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "TrackingID",
+							"value": "ROUTER_5D813874-0C33-01BB-18C9-801235454",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"message\": \"The request could not be understood by the server due to malformed syntax.\",\n    \"errors\": [\n        {\n            \"description\": \"The request could not be understood by the server due to malformed syntax.\"\n        }\n    ],\n    \"trackingId\": \"ROUTER_5D829007-CFE6-01BB-1D94-45CCA8561D94\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Update an Example",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"id\": \"{{_exampleId1}}\",\n\t\"orgId\": \"{{_orgId}}\",\n\t\"exampleField1\": \"{{example1_exampleField1_newValue}}\"\n}"
+				},
+				"url": {
+					"raw": "https://10c981dc-b76b-4daa-b140-f1c4d313b2a3.mock.pstmn.io/examples/:exampleId",
+					"protocol": "https",
+					"host": [
+						"10c981dc-b76b-4daa-b140-f1c4d313b2a3",
+						"mock",
+						"pstmn",
+						"io"
+					],
+					"path": [
+						"examples",
+						":exampleId"
+					],
+					"variable": [
+						{
+							"key": "exampleId",
+							"value": "string",
+							"description": "Required.  ID of example to modify."
+						}
+					]
+				},
+				"description": "Create a new {example}. \n\n{Describe who can do this (ie: Only an admin can create a new endpoint)}.\n\n{Describe the scopes required to do this  (ie: Requires the `spark:example_write` scope)}.\n\nSpecify the ID of the {example} to delete in the required `exampleId` parameter in the URI.\n\nThe following fields can be included in the JSON request body:\n* id - String/Required - MUST be the same as the current ID for the example\n* exampleField1 - String/Required - A Field in our new example object. This value may be different than the original value.\n* ordId - String/Optional - If set will be ignored.  (To move the example to a different org, delete this one and re-created it in another org.)"
+			},
+			"response": [
+				{
+					"name": "Success: Update ExampleField1",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/javascript",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"id\": \"SERVER_ASSIGNED_ID_FOR_EXAMPLE_1\",\n\t\"orgId\": \"TEST_USER_1_ORGID\",\n\t\"exampleField1\": \"new example1Field value for first example\"\n}"
+						},
+						"url": {
+							"raw": "https://10c981dc-b76b-4daa-b140-f1c4d313b2a3.mock.pstmn.io/examples/{{_firstExampleId}}",
+							"protocol": "https",
+							"host": [
+								"10c981dc-b76b-4daa-b140-f1c4d313b2a3",
+								"mock",
+								"pstmn",
+								"io"
+							],
+							"path": [
+								"examples",
+								"{{_firstExampleId}}"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "TrackingID",
+							"value": "ROUTER_5D813874-0C33-01BB-18C9-80123421",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"id\": \"SERVER_ASSIGNED_ID_FOR_EXAMPLE_1\",\n    \"orgId\": \"TEST_USER_1_ORGID\",\n\t\"exampleField1\": \"new example1Field value for first example\"\n}\n"
+				},
+				{
+					"name": "Failure: Example not found",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"id\": \"{{_exampleId1}}\",\n\t\"orgId\": \"{{_orgId}}\",\n\t\"exampleField1\": \"{{example1_exampleField1_newValue}}\"\n}"
+						},
+						"url": {
+							"raw": "https://10c981dc-b76b-4daa-b140-f1c4d313b2a3.mock.pstmn.io/examples/1234",
+							"protocol": "https",
+							"host": [
+								"10c981dc-b76b-4daa-b140-f1c4d313b2a3",
+								"mock",
+								"pstmn",
+								"io"
+							],
+							"path": [
+								"examples",
+								"1234"
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "TrackingID",
+							"value": "ROUTER_5D82C630-FE4E-01BB-1982-181EF30A1982",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"message\": \"The requested resource could not be found.\",\n    \"errors\": [\n        {\n            \"description\": \"The requested resource could not be found.\"\n        }\n    ],\n    \"trackingId\": \"ROUTER_5D82C630-FE4E-01BB-1982-181EF30A1982\"\n}"
+				},
+				{
+					"name": "Success: Update ExampleField1_with_partner_set_orgId",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/javascript",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"id\": \"SERVER_ASSIGNED_ID_FOR_EXAMPLE_1\",\n\t\"orgId\": \"TEST_USER_1_ORGID\",\n\t\"exampleField1\": \"new example1Field value for first example\"\n}"
+						},
+						"url": {
+							"raw": "https://10c981dc-b76b-4daa-b140-f1c4d313b2a3.mock.pstmn.io/examples/{{_firstExampleId}}",
+							"protocol": "https",
+							"host": [
+								"10c981dc-b76b-4daa-b140-f1c4d313b2a3",
+								"mock",
+								"pstmn",
+								"io"
+							],
+							"path": [
+								"examples",
+								"{{_firstExampleId}}"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "TrackingID",
+							"value": "ROUTER_5D813874-0C33-01BB-18C9-80123421",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\"id\":\"SERVER_ASSIGNED_ID_FOR_EXAMPLE_1\",\"orgId\":\"ID_OF_PARTNER_MANAGED_ORG\",\"exampleField1\":\"new example1Field value for first example\"}"
+				},
+				{
+					"name": "Failure: Invalid request body in PUT",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"id\": \"{{_exampleId1}}\",\n\t\"orgId\": \"{{_orgId}}\",\n\t\"exampleField1\": [\"An array is an invalid field value type\"]\"\n}"
+						},
+						"url": {
+							"raw": "https://10c981dc-b76b-4daa-b140-f1c4d313b2a3.mock.pstmn.io/examples/:exampleId",
+							"protocol": "https",
+							"host": [
+								"10c981dc-b76b-4daa-b140-f1c4d313b2a3",
+								"mock",
+								"pstmn",
+								"io"
+							],
+							"path": [
+								"examples",
+								":exampleId"
+							],
+							"variable": [
+								{
+									"key": "exampleId",
+									"value": "string",
+									"description": "Required.  ID of example to modify."
+								}
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "TrackingID",
+							"value": "ROUTER_5D82C3F8-F45E-01BB-1CE6-181EF30A1CE6",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"message\": \"The request could not be understood by the server due to malformed syntax.\",\n    \"errors\": [\n        {\n            \"description\": \"The request could not be understood by the server due to malformed syntax.\"\n        }\n    ],\n    \"trackingId\": \"ROUTER_5D82C3F8-F45E-01BB-1CE6-181EF30A1CE6\"\n}"
+				},
+				{
+					"name": "Failure: Token Missing Scopes",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"id\": \"{{_exampleId1}}\",\n\t\"orgId\": \"{{_orgId}}\",\n\t\"exampleField1\": \"{{example1_exampleField1_newValue}}\"\n}"
+						},
+						"url": {
+							"raw": "https://10c981dc-b76b-4daa-b140-f1c4d313b2a3.mock.pstmn.io/examples/:exampleId",
+							"protocol": "https",
+							"host": [
+								"10c981dc-b76b-4daa-b140-f1c4d313b2a3",
+								"mock",
+								"pstmn",
+								"io"
+							],
+							"path": [
+								"examples",
+								":exampleId"
+							],
+							"variable": [
+								{
+									"key": "exampleId",
+									"value": "string",
+									"description": "Required.  ID of example to modify."
+								}
+							]
+						}
+					},
+					"status": "Forbidden",
+					"code": 403,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "TrackingID",
+							"value": "ROUTER_5D813874-0C33-01BB-18C9-801234123",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"message\": \"The server understood the request, but refused to fulfill it because the access token is missing required scopes or the user is missing required roles or licenses.\",\n    \"errors\": [\n        {\n            \"description\": \"The server understood the request, but refused to fulfill it because the access token is missing required scopes or the user is missing required roles or licenses.\"\n        }\n    ],\n    \"trackingId\": \"ROUTER_5D813874-0C33-01BB-18C9-801234123\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Delete Example",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://10c981dc-b76b-4daa-b140-f1c4d313b2a3.mock.pstmn.io/examples/:exampleId",
+					"protocol": "https",
+					"host": [
+						"10c981dc-b76b-4daa-b140-f1c4d313b2a3",
+						"mock",
+						"pstmn",
+						"io"
+					],
+					"path": [
+						"examples",
+						":exampleId"
+					],
+					"variable": [
+						{
+							"key": "exampleId",
+							"value": "string",
+							"description": "Required.  ID of example to delete."
+						}
+					]
+				},
+				"description": "Delete an {example}.\n\n{Describe who can do this (ie: Only an admin can delete and example)}.\n\n{Describe the scopes required to do this (ie: Requires the spark:example_write scope)}.\n\nSpecify the ID of the {example} to delete in the required `exampleId` parameter in the URI."
+			},
+			"response": [
+				{
+					"name": "Failure: Token Missing Scopes",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "https://10c981dc-b76b-4daa-b140-f1c4d313b2a3.mock.pstmn.io/examples/:exampleId",
+							"protocol": "https",
+							"host": [
+								"10c981dc-b76b-4daa-b140-f1c4d313b2a3",
+								"mock",
+								"pstmn",
+								"io"
+							],
+							"path": [
+								"examples",
+								":exampleId"
+							],
+							"variable": [
+								{
+									"key": "exampleId",
+									"value": "string",
+									"description": "Required.  ID of example to delete."
+								}
+							]
+						}
+					},
+					"status": "Forbidden",
+					"code": 403,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "TrackingID",
+							"value": "ROUTER_5D813874-0C33-01BB-18C9-801234123",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"message\": \"The server understood the request, but refused to fulfill it because the access token is missing required scopes or the user is missing required roles or licenses.\",\n    \"errors\": [\n        {\n            \"description\": \"The server understood the request, but refused to fulfill it because the access token is missing required scopes or the user is missing required roles or licenses.\"\n        }\n    ],\n    \"trackingId\": \"ROUTER_5D813874-0C33-01BB-18C9-801234123\"\n}"
+				},
+				{
+					"name": "Success: Delete Example",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "https://10c981dc-b76b-4daa-b140-f1c4d313b2a3.mock.pstmn.io/examples/{{exampleId2}}",
+							"protocol": "https",
+							"host": [
+								"10c981dc-b76b-4daa-b140-f1c4d313b2a3",
+								"mock",
+								"pstmn",
+								"io"
+							],
+							"path": [
+								"examples",
+								"{{exampleId2}}"
+							]
+						}
+					},
+					"status": "No Content",
+					"code": 204,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "TrackingID",
+							"value": "ROUTER_5D813874-0C33-01BB-18C9-8012341",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": ""
+				},
+				{
+					"name": "Failure: Example not found",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "https://10c981dc-b76b-4daa-b140-f1c4d313b2a3.mock.pstmn.io/examples/1234",
+							"protocol": "https",
+							"host": [
+								"10c981dc-b76b-4daa-b140-f1c4d313b2a3",
+								"mock",
+								"pstmn",
+								"io"
+							],
+							"path": [
+								"examples",
+								"1234"
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "TrackingID",
+							"value": "ROUTER_5D82C630-FE4E-01BB-1982-181EF30A1983",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"message\": \"The requested resource could not be found.\",\n    \"errors\": [\n        {\n            \"description\": \"The requested resource could not be found.\"\n        }\n    ],\n    \"trackingId\": \"ROUTER_5D82C630-FE4E-01BB-1982-181EF30A1983\"\n}"
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "0",
+				"value": {
+					"key": "token",
+					"value": "SET_THIS_TO_THE_TOKEN_OF_THE_TEST_USER",
+					"type": "string"
+				},
+				"type": "any"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "8f07b9a4-0489-43ce-bcfe-06c72862a6ab",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "179b2c8d-beeb-4f0b-b2a9-ba892c08d3c1",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "cb3505ab-de95-465a-bd3c-00ae29cb7ebc",
+			"key": "url",
+			"value": "SET_THIS_TO_YOUR_ENVIRONMENT_UNDER_TEST",
+			"type": "string"
+		},
+		{
+			"id": "44a48e46-45c8-43ed-a011-54a3291df45c",
+			"key": "ACCESS_TOKEN",
+			"value": "SET_THIS_TO_THE_TOKEN_OF_THE_TEST_USER",
+			"type": "string"
+		},
+		{
+			"id": "92a34412-9073-4961-beb4-77b33cb79bff",
+			"key": "example1_exampleField1_value",
+			"value": "example one exampleField1 value",
+			"type": "string"
+		},
+		{
+			"id": "fbee1526-2e9e-43d7-b902-dffd594daa8b",
+			"key": "example2_exampleField1_value",
+			"value": "example two exampleField1 value",
+			"type": "string"
+		},
+		{
+			"id": "6cac93f6-3096-4684-a37e-a678ba9acf40",
+			"key": "mock_example1_Id",
+			"value": "example one 's ID for mock server\n",
+			"type": "string"
+		},
+		{
+			"id": "bcdb01c0-98ac-48ff-9ae7-44e44f1b67f3",
+			"key": "mock_example2_Id",
+			"value": "example one 's ID for mock server",
+			"type": "string"
+		},
+		{
+			"id": "713daed9-13a0-4819-a3d3-e80356dcb73e",
+			"key": "example1_exampleField1_newValue",
+			"value": "new example1Field value for first example",
+			"type": "string"
+		}
+	],
+	"protocolProfileBehavior": {}
+}
